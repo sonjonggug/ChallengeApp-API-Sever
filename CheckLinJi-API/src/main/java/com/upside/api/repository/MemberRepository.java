@@ -1,0 +1,10 @@
+package com.upside.api.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.upside.api.entity.MemberEntity;
+
+public interface MemberRepository extends JpaRepository<MemberEntity, Long> {
+	
+}
+
