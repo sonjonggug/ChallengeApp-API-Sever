@@ -18,9 +18,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-//@Data
-//@Entity
 
+@Setter
 @Getter
 @Entity
 @ToString
@@ -60,17 +59,14 @@ public class MemberEntity {
 
  
  
-public void save (MemberDto memberDto) {			
-	this.userId = memberDto.getUserId();
-	this.password = memberDto.getPassword();
-	this.userName = memberDto.getUserName();
-	this.age = memberDto.getAge();
-	this.email = memberDto.getEmail();
-	this.birth = memberDto.getBirth();
-	this.sex = memberDto.getSex();
-	this.joinDate = memberDto.getJoinDate();
-	this.loginDate = memberDto.getLoginDate();
-	}
+	/*
+	 * public void save (MemberDto memberDto) { this.userId = memberDto.getUserId();
+	 * this.password = memberDto.getPassword(); this.userName =
+	 * memberDto.getUserName(); this.age = memberDto.getAge(); this.email =
+	 * memberDto.getEmail(); this.birth = memberDto.getBirth(); this.sex =
+	 * memberDto.getSex(); this.joinDate = memberDto.getJoinDate(); this.loginDate =
+	 * memberDto.getLoginDate(); }
+	 */
 
 
 @Builder
