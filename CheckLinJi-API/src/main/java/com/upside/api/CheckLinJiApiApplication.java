@@ -8,7 +8,7 @@ public class CheckLinJiApiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(CheckLinJiApiApplication.class, args);
-		System.out.println("dd");
+		
 	}
 
 }

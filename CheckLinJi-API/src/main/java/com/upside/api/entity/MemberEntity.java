@@ -10,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -21,12 +22,12 @@ import lombok.ToString;
 //@Entity
 
 @Getter
-//@Setter
 @Entity
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicUpdate  // 변경된 필드만 적용
 @DynamicInsert  // 같음
+@Table(name = "MemberInfo")
 public class MemberEntity {
 
  @Id
