@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.upside.api.config.JwtTokenProvider;
 import com.upside.api.dto.MemberDto;
 import com.upside.api.entity.MemberEntity;
 import com.upside.api.service.MemberService;
@@ -32,6 +34,8 @@ public class MemberController {
 	@Autowired
 	MemberService memberService ;
 	
+	@Autowired
+	JwtTokenProvider jwtTokenProvider ;
 	
 	@GetMapping 						  /* default size = 10 */
 	public Page<MemberEntity> memberList(@PageableDefault (sort = "userId", direction = Sort.Direction.DESC) Pageable pageable  ) {
@@ -70,9 +74,26 @@ public class MemberController {
 		 
 		 if(result.get("HttpStatus").equals("200")) {			 		 
 			 headers.add("Authorization", result.get("header"));
+			 System.out.println("0");
 			 return new ResponseEntity<>(headers, HttpStatus.OK);
-		 } else {			 
+		 } else {
+			 System.out.println("1");
 			 return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY); 
 		 }
 	}
+	
+	 // JWT 토큰 검증 요청 처리
+    @GetMapping("/validate")
+    public ResponseEntity<String> validateToken(@RequestHeader("Authorization") String authorizationHeader) {
+        // Authorization Header에서 JWT 토큰 추출
+    	
+        String token = authorizationHeader.substring(7);
+        System.out.println(token);
+        // JWT 토큰 검증
+        if (jwtTokenProvider.validateTokenExceptExpiration(token)) {
+            return ResponseEntity.ok("Token is valid");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is invalid or expired");
+        }
+    }
 }
