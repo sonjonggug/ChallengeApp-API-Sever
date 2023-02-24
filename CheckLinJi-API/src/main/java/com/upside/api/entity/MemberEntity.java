@@ -19,10 +19,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Setter
-@Getter
+@Data
 @Entity
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @DynamicUpdate  // 변경된 필드만 적용
 @DynamicInsert  // 같음
@@ -30,8 +28,8 @@ import lombok.ToString;
 public class MemberEntity {
 
  @Id
- @GeneratedValue(strategy = GenerationType.IDENTITY)
- private Long userId;
+// @GeneratedValue(strategy = GenerationType.IDENTITY)
+ private String userId;
  
  @Column(name = "password")
  private String password;
@@ -70,7 +68,7 @@ public class MemberEntity {
 
 
 @Builder
-public MemberEntity(Long userId, String password, String userName, int age, String email, String birth, String sex,
+public MemberEntity(String userId, String password, String userName, int age, String email, String birth, String sex,
 		String joinDate, String loginDate) {
 	super();
 	this.userId = userId;
