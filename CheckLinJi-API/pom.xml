@@ -59,10 +59,17 @@
             <artifactId>jjwt</artifactId>
             <version>0.9.1</version>
         </dependency> 
-        <dependency>
+        <!-- JWT 관련 라이브러리 -->
+		<dependency>
+		    <groupId>javax.xml.bind</groupId>
+		    <artifactId>jaxb-api</artifactId>
+		    <version>2.3.1</version>
+		</dependency>
+        
+       <!--  <dependency>
 	    <groupId>org.springframework.boot</groupId>
-	    <artifactId>spring-boot-starter-security</artifactId>
-	</dependency>
+	    <artifactId>spring-boot-starter-security</artifactId>	    
+	</dependency> -->
 		<!--HttpServlet 관련 라이브러리  -->
 	<dependency>
 	    <groupId>javax.servlet</groupId>
@@ -70,7 +77,15 @@
 	    <version>4.0.1</version>
 	    <scope>provided</scope>
 	</dependency>
-       
+	<!-- JAVA에는 JSON이라는 데이터 타입이 없습니다. 따라서 JSON데이터에 대한 처리를 하는 라이브러리를 추가해야만 하는데 대표적으로 jackson-->
+    <dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-databind</artifactId>  
+</dependency>
+		<dependency>
+		    <groupId>org.apache.tomcat.embed</groupId>
+		    <artifactId>tomcat-embed-jasper</artifactId>
+		</dependency>     
 	</dependencies>
 
 	<build>

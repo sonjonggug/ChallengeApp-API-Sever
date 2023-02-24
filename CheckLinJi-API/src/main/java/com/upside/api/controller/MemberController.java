@@ -1,13 +1,22 @@
 package com.upside.api.controller;
 
-import java.util.List;
+
+
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,35 +33,46 @@ public class MemberController {
 	MemberService memberService ;
 	
 	
-	@GetMapping
-	public List<MemberEntity> memberList(@ModelAttribute MemberDto memberDto) {
+	@GetMapping 						  /* default size = 10 */
+	public Page<MemberEntity> memberList(@PageableDefault (sort = "userId", direction = Sort.Direction.DESC) Pageable pageable  ) {
 				
-		List<MemberEntity> result = memberService.memberList(memberDto);
-		
-		return result;
+				
+		return memberService.memberList(pageable);
 	}
 						
 	@PostMapping
-	public String signUp(@ModelAttribute MemberDto memberDto) {
+	public ResponseEntity<Void> signUp(@RequestBody MemberDto memberDto) {
+			
 		
-		
-		
-		return memberService.signUp(memberDto);
+		return new ResponseEntity<>(memberService.signUp(memberDto));
 	}
 	
 	@PatchMapping
-	public String updateMember(@ModelAttribute MemberDto memberDto) {
+	public ResponseEntity<Void> updateMember(@RequestBody MemberDto memberDto) {
 		
 		
-		
-		return memberService.updateMember(memberDto);
+		return new ResponseEntity<>(memberService.updateMember(memberDto));		
 	}
 	
 	@DeleteMapping
-	public String deleteMember(@RequestParam String memberId) {
+	public ResponseEntity<Void> deleteMember(@RequestParam String userId) {
 		
 		
+		return new ResponseEntity<>(memberService.deleteMember(userId));
 		
-		return memberService.deleteMember(memberId);
+	}
+	
+	@PostMapping("/login")
+	public ResponseEntity<Void> loginMember(@RequestBody MemberDto memberDto) {
+		 HttpHeaders headers = new HttpHeaders();
+		 		 			
+		 Map<String, String> result = memberService.loginMember(memberDto);
+		 
+		 if(result.get("HttpStatus").equals("200")) {			 		 
+			 headers.add("Authorization", result.get("header"));
+			 return new ResponseEntity<>(headers, HttpStatus.OK);
+		 } else {			 
+			 return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY); 
+		 }
 	}
 }
