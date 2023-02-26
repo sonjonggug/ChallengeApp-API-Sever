@@ -37,6 +37,8 @@ public class MemberController {
 	@Autowired
 	JwtTokenProvider jwtTokenProvider ;
 	
+	
+	
 	@GetMapping 						  /* default size = 10 */
 	public Page<MemberEntity> memberList(@PageableDefault (sort = "userId", direction = Sort.Direction.DESC) Pageable pageable  ) {
 				
@@ -68,16 +70,17 @@ public class MemberController {
 	
 	@PostMapping("/login")
 	public ResponseEntity<Void> loginMember(@RequestBody MemberDto memberDto) {
+		
 		 HttpHeaders headers = new HttpHeaders();
 		 		 			
 		 Map<String, String> result = memberService.loginMember(memberDto);
 		 
 		 if(result.get("HttpStatus").equals("200")) {			 		 
 			 headers.add("Authorization", result.get("header"));
-			 System.out.println("0");
+			 
 			 return new ResponseEntity<>(headers, HttpStatus.OK);
 		 } else {
-			 System.out.println("1");
+			 
 			 return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY); 
 		 }
 	}

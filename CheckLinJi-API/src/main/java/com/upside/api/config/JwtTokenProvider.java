@@ -3,10 +3,14 @@ package com.upside.api.config;
 import java.util.Base64;
 import java.util.Date;
 
-import javax.servlet.http.HttpServletRequest;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
+import com.upside.api.service.UserService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -14,11 +18,11 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 @Component
-@RequiredArgsConstructor
+
 public class JwtTokenProvider {
 
     @Value("${spring.jwt.secretKey}")
@@ -26,8 +30,10 @@ public class JwtTokenProvider {
     
     
     private long tokenValidTime = 1000L * 60 * 30; // 토큰은 무한정으로 사용되면 안되기에 만료 시간 30분
-
+    private long refreshTokenValidTime = 1000L * 60 * 60 * 24 * 7; // 7일
     
+    @Autowired
+    UserService userDetailsService;
 
     @PostConstruct
     protected void init() {
@@ -50,23 +56,36 @@ public class JwtTokenProvider {
                 .signWith(SignatureAlgorithm.HS256, secretKey) // 서명할 때 사용되는 알고리즘은 HS256, 키는 위에서 지정한 값으로 진행한다.
                 .compact();
     }
+    /**
+     * 토큰 재발행
+     * @return
+     */
+    public String createRefreshToken() {
+        Date now = new Date();
+
+        return Jwts.builder()
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + refreshTokenValidTime))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
     
     /**
      * 토큰으로 인증 객체(Authentication)을 얻기 위한 메소드.
      * @param token
      * @return
      */
-//    public Authentication getAuthentication(String token) {
-//        UserDetails userDetails = memberDetailsService.loadUserByUsername(getMemberEmail(token));
-//        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-//    }
+    public Authentication getAuthentication(String token) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(getUserId(token));
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+    }
     
     /**
-     * 이메일을 얻기 위해 실제로 토큰을 디코딩하는 부분이다.
+     * ID를 얻기 위해 실제로 토큰을 디코딩하는 부분이다.
      * @param token
      * @return
      */
-    public String getMemberEmail(String token) {
+    public String getUserId(String token) {
         try {
             return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject(); // 지정한 Secret Key를 통해 서명된 JWT를 해석하여 Subject를 끌고와 리턴하여 이를 통해 인증 객체를 끌고올 수 있다.
         } catch(ExpiredJwtException e) {
@@ -75,11 +94,11 @@ public class JwtTokenProvider {
     }
     /**
      * 토큰을 사용하기 위해 실제로 Header에서 꺼내오는 메소드이다.
-     * @param req
+     * @param request
      * @return
      */
-    public String resolveToken(HttpServletRequest req) {
-        return req.getHeader("X-AUTH-TOKEN");
+    public String resolveToken(HttpServletRequest request) {
+        return request.getHeader("Authorization");
     }
     /**
      * 토큰이 만료되었는 지를 확인해주는 메소드이다.
@@ -94,4 +113,5 @@ public class JwtTokenProvider {
             return false;
         }
     }
+      
 }

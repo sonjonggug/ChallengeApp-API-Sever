@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j // 로깅에 대한 추상 레이어를 제공하는 인터페이스의 모음.
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @Service
 public class MemberService {
 	
@@ -34,6 +35,8 @@ public class MemberService {
 	@Autowired
 	JwtTokenProvider jwtTokenProvider;
 	
+	@Autowired
+	PasswordEncoder passwordEncoder;
 	/**
 	 * 회원목록 조회
 	 * @param memberDto
@@ -145,22 +148,37 @@ public class MemberService {
 }	
 	
 	public Map<String, String> loginMember(MemberDto memberDto) {
-				        
-		memberDto.setPassword(Encrypt.sha2String(memberDto.getPassword()));
-		
-		MemberEntity memberEntity = memberRepository.findByUserId(memberDto.getUserId());
-		
 		Map<String, String> result = new HashMap<String, String>();
 		
-		if (memberEntity.getUserId().equals(memberDto.getUserId()) && memberEntity.getPassword().equals(memberDto.getPassword())) {	
-			System.out.println(jwtTokenProvider.createToken(memberDto.getUserId()));
+		MemberEntity memberEntity = memberRepository.findByUserId(memberDto.getUserId());
+		    if (!passwordEncoder.matches(memberDto.getPassword(), memberEntity.getPassword())) {
+		    	result.put("HttpStatus", "422");
+		    	result.put("UserId", null);
+		    } else {
+		    result.put("HttpStatus", "200");
+		    result.put("Header", jwtTokenProvider.createToken(memberDto.getEmail()));
+		    result.put("UserId", memberDto.getEmail());
+//		    return new MemberLoginResponseDto(MemberEntity.getUserId(), jwtTokenProvider.createToken(requestDto.getEmail()));
+		    }
+		    return result ;	
+		    
+		    
+//		memberDto.setPassword(Encrypt.sha2String(memberDto.getPassword()));
+//		
+//		MemberEntity memberEntity = memberRepository.findByUserId(memberDto.getUserId());
+//		
+//		Map<String, String> result = new HashMap<String, String>();
+//		
+//		if (memberEntity.getUserId().equals(memberDto.getUserId()) && memberEntity.getPassword().equals(memberDto.getPassword())) {	
+//			System.out.println(jwtTokenProvider.createToken(memberDto.getUserId()));
+////			result.put("Header", jwtTokenProvider.createToken(memberDto.getUserId()));
 //			result.put("Header", jwtTokenProvider.createToken(memberDto.getUserId()));
-			result.put("Header", jwtTokenProvider.createToken(memberDto.getUserId()));
-			result.put("HttpStatus", "200");
-				        							
-		} else {
-			result.put("HttpStatus", "422");			
-		}
-		return result ;		
-	}
+//			result.put("HttpStatus", "200");
+//				        							
+//		} else {
+//			result.put("HttpStatus", "422");			
+//		}
+//		return result ;		
+//	}
+}
 }
