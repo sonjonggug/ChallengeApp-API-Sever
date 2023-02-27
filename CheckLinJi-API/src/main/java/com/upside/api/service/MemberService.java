@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -25,18 +24,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j // 로깅에 대한 추상 레이어를 제공하는 인터페이스의 모음.
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class MemberService {
 	
-	@Autowired 
-	MemberRepository memberRepository;
 	
-	@Autowired
-	JwtTokenProvider jwtTokenProvider;
-	
-	@Autowired
-	PasswordEncoder passwordEncoder;
+	private final MemberRepository memberRepository;		
+	private final JwtTokenProvider jwtTokenProvider;		
+	private final PasswordEncoder passwordEncoder;
 	/**
 	 * 회원목록 조회
 	 * @param memberDto
@@ -71,11 +66,11 @@ public class MemberService {
 		 }
 		 
 		SimpleDateFormat today = new SimpleDateFormat("yyyy-MM-dd hh:mm");        		
-		 
+		
 		MemberEntity memberEntity = MemberEntity.builder()
 				.userId(memberDto.getUserId())
 				.userName(memberDto.getUserName())
-				.password(Encrypt.sha2String(memberDto.getPassword())) 
+				.password(passwordEncoder.encode(memberDto.getPassword())) 
 				.email(memberDto.getEmail())
 				.age(memberDto.getAge())
 				.birth(memberDto.getBirth())
@@ -156,8 +151,8 @@ public class MemberService {
 		    	result.put("UserId", null);
 		    } else {
 		    result.put("HttpStatus", "200");
-		    result.put("Header", jwtTokenProvider.createToken(memberDto.getEmail()));
-		    result.put("UserId", memberDto.getEmail());
+		    result.put("Header", jwtTokenProvider.createToken(memberDto.getUserId()));
+		    result.put("UserId", memberDto.getUserId());
 //		    return new MemberLoginResponseDto(MemberEntity.getUserId(), jwtTokenProvider.createToken(requestDto.getEmail()));
 		    }
 		    return result ;	

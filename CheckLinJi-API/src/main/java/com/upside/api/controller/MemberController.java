@@ -4,7 +4,6 @@ package com.upside.api.controller;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,15 +26,17 @@ import com.upside.api.dto.MemberDto;
 import com.upside.api.entity.MemberEntity;
 import com.upside.api.service.MemberService;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/members")
 public class MemberController {
-
-	@Autowired
-	MemberService memberService ;
 	
-	@Autowired
-	JwtTokenProvider jwtTokenProvider ;
+	private final MemberService memberService ;
+	
+	
+	private final JwtTokenProvider jwtTokenProvider ;
 	
 	
 	
@@ -46,7 +47,7 @@ public class MemberController {
 		return memberService.memberList(pageable);
 	}
 						
-	@PostMapping
+	@PostMapping("/sign")
 	public ResponseEntity<Void> signUp(@RequestBody MemberDto memberDto) {
 			
 		
@@ -69,18 +70,22 @@ public class MemberController {
 	}
 	
 	@PostMapping("/login")
-	public ResponseEntity<Void> loginMember(@RequestBody MemberDto memberDto) {
-		
+	public ResponseEntity<MemberDto> loginMember(@RequestBody MemberDto memberDto) {
+			System.out.println("도착");
 		 HttpHeaders headers = new HttpHeaders();
-		 		 			
+		 		  		 
 		 Map<String, String> result = memberService.loginMember(memberDto);
+		 
+		 MemberDto member = new MemberDto();
 		 
 		 if(result.get("HttpStatus").equals("200")) {			 		 
 			 headers.add("Authorization", result.get("header"));
-			 
-			 return new ResponseEntity<>(headers, HttpStatus.OK);
-		 } else {
-			 
+			  member.setUserId(result.get("userId"));
+			  System.out.println(result.get("userId"));
+			  System.out.println(result.get("header"));
+			 return new ResponseEntity<>(member,headers, HttpStatus.OK);
+		 } else {			 
+			 System.out.println("22");
 			 return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY); 
 		 }
 	}

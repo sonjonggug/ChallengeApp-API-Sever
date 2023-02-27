@@ -14,5 +14,6 @@ public class MemberDto {
  private String sex;  
  private String joinDate; 
  private String loginDate;
+ private String authority;
  
 }

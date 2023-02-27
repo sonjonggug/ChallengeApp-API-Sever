@@ -3,7 +3,6 @@ package com.upside.api.config;
 import java.util.Base64;
 import java.util.Date;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,10 +18,11 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
 
 @Component
-
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 
     @Value("${spring.jwt.secretKey}")
@@ -31,9 +31,8 @@ public class JwtTokenProvider {
     
     private long tokenValidTime = 1000L * 60 * 30; // 토큰은 무한정으로 사용되면 안되기에 만료 시간 30분
     private long refreshTokenValidTime = 1000L * 60 * 60 * 24 * 7; // 7일
-    
-    @Autowired
-    UserService userDetailsService;
+        
+    private final UserService userDetailsService;
 
     @PostConstruct
     protected void init() {
@@ -46,7 +45,7 @@ public class JwtTokenProvider {
      * @return
      */
     public String createToken(String userId) {
-        Claims claims = Jwts.claims().setSubject(userId); // 토큰의 키가 되는 Subject를 중복되지 않는 고유한 값인 Email로 지정한다.
+        Claims claims = Jwts.claims().setSubject(userId); // 토큰의 키가 되는 Subject를 중복되지 않는 고유한 값인 userId 로 지정한다.
         Date now = new Date();
 
         return Jwts.builder()
@@ -98,6 +97,7 @@ public class JwtTokenProvider {
      * @return
      */
     public String resolveToken(HttpServletRequest request) {
+    	System.out.println("resolveToken");
         return request.getHeader("Authorization");
     }
     /**
