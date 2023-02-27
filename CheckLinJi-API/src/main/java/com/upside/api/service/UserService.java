@@ -26,7 +26,7 @@ public class UserService implements UserDetailsService{
     
         //여기서 받은 유저 패스워드와 비교하여 로그인 인증       
         MemberEntity LoginUser = memberRepository.findByUserId(userid);
-
+                        
         if (LoginUser == null){
         	log.info("로그인 실패 ------> " + userid);
             throw new UsernameNotFoundException("User not authorized.");

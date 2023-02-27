@@ -51,6 +51,9 @@ public class MemberEntity {
  @Column(name = "authority")
  private String authority;
  
+ @Column(name = "refreshToken")
+ private String refreshToken;
+ 
  
 	/*
 	 * public void save (MemberDto memberDto) { this.userId = memberDto.getUserId();

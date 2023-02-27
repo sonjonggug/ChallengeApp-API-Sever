@@ -97,7 +97,7 @@ public class JwtTokenProvider {
      * @return
      */
     public String resolveToken(HttpServletRequest request) {
-    	System.out.println("resolveToken");
+    	
         return request.getHeader("Authorization");
     }
     /**

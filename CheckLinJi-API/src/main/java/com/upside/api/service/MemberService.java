@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.upside.api.config.Encrypt;
 import com.upside.api.config.JwtTokenProvider;
 import com.upside.api.dto.MemberDto;
 import com.upside.api.entity.MemberEntity;
@@ -47,14 +47,16 @@ public class MemberService {
 	 * @param memberDto
 	 * @return 
 	 */
-	public HttpStatus signUp(MemberDto memberDto) {
+	public Map<String, String> signUp(MemberDto memberDto) {
+		Map<String, String> result = new HashMap<String, String>();
 		
 		if(memberDto.getUserId() == null || memberDto.getUserName() == null || memberDto.getPassword() == null || memberDto.getEmail() == null ||
-		   memberDto.getAge() == 0 || memberDto.getBirth() == null || memberDto.getSex() == null ) {  
+		   memberDto.getAge() == 0 || memberDto.getBirth() == null || memberDto.getSex() == null || memberDto.getAuthority() == null ) {  
 		    									
 			log.info("회원가입 실패 ------> " + Constants.NOT_EXIST_PARAMETER);
-			
-			return HttpStatus.UNPROCESSABLE_ENTITY ; // 요청은 잘 만들어졌지만, 문법 오류로 인하여 따를 수 없습니다.
+			result.put("HttpStatus","1.01");
+			result.put("Msg",Constants.NOT_EXIST_PARAMETER);
+			return result ; // 요청은 잘 만들어졌지만, 문법 오류로 인하여 따를 수 없습니다.
 		} 
 		
 		
@@ -62,7 +64,11 @@ public class MemberService {
 		 
 		 if(idSame == true) {
 			 log.info("회원가입 실패 ------> " + "중복된 ID 입니다.");
-			 return HttpStatus.UNPROCESSABLE_ENTITY ; // 요청은 잘 만들어졌지만, 문법 오류로 인하여 따를 수 없습니다.
+			 
+			 result.put("HttpStatus","1.02");
+			 result.put("Msg",Constants.DUPLICATE_ID);
+			 
+			 return result ; // 요청은 잘 만들어졌지만, 문법 오류로 인하여 따를 수 없습니다.
 		 }
 		 
 		SimpleDateFormat today = new SimpleDateFormat("yyyy-MM-dd hh:mm");        		
@@ -77,21 +83,49 @@ public class MemberService {
 				.sex(memberDto.getSex())
 				.loginDate(today.format(new Date()))
 				.joinDate(today.format(new Date()))
+				.authority(memberDto.getAuthority())
 				.build();
 						
 		 memberRepository.save(memberEntity);
 		 
-		 boolean  result = memberRepository.findById(memberDto.getUserId()).isPresent();
+		 boolean  exsistUser = memberRepository.findById(memberDto.getUserId()).isPresent();
 		 
-		 if (result == true) {
+		 if (exsistUser == true) {
 			 log.info("회원가입 성공 ------> " + memberDto.getUserId());
-			 return HttpStatus.OK;  // 인서트 성공  
+			 result.put("HttpStatus","2.00");
+			 result.put("UserId",memberDto.getUserId());
+			 result.put("Msg",Constants.SUCCESS);
+			 return result;  // 인서트 성공  
 		 } else {
 			 log.info("회원가입 실패 ------> " + Constants.FAIL);
-			 return HttpStatus.INTERNAL_SERVER_ERROR ; // 서버가 처리 방법을 모르는 상황이 발생했습니다. 서버는 아직 처리 방법을 알 수 없습니다.
+			 result.put("HttpStatus","1.00");
+			 result.put("Msg",Constants.FAIL);
+			 return result ; 
 		 }
 		 
 	}
+	
+	 /**
+     * Unique한 값을 가져야하나, 중복된 값을 가질 경우를 검증
+     * @param email
+     */
+    public Map<String, String> validateDuplicated(String email) {
+    	
+    	Map<String, String> result = new HashMap<String, String>();
+    	
+        if (memberRepository.findById(email).isPresent()) {
+        	log.info("아이디 검증 ------> " + "중복된 ID 입니다.");			 
+			 result.put("HttpStatus","1.02");
+			 result.put("Msg",Constants.DUPLICATE_ID);			 
+        	
+        } else {
+        	result.put("HttpStatus","2.00");
+        	result.put("Msg",Constants.SUCCESS);
+        	
+        }
+        return result ;
+    }
+	
 	
 	/**
 	 * 회원정보 업데이트
@@ -99,28 +133,44 @@ public class MemberService {
 	 * @return
 	 */
 	@Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
-	public HttpStatus updateMember(MemberDto memberDto) {
+	public  Map<String, String> updateMember(MemberDto memberDto) {
+		
+		Map<String, String> result = new HashMap<String, String>();
 		
 		if(memberDto.getUserId() == null ) {
 			log.info("회원정보 업데이트 실패 ------> " + Constants.NOT_EXIST_PARAMETER);
-			
-			return HttpStatus.UNPROCESSABLE_ENTITY ; // 요청은 잘 만들어졌지만, 문법 오류로 인하여 따를 수 없습니다.
+			result.put("HttpStatus","1.01");
+			result.put("Msg",Constants.NOT_EXIST_PARAMETER);
+			return result ; // 요청은 잘 만들어졌지만, 문법 오류로 인하여 따를 수 없습니다.
 		} 
 				
-		MemberEntity user = memberRepository.findById(memberDto.getUserId()).get();
+		MemberEntity user = memberRepository.findByUserId(memberDto.getUserId());		
 		
-		if(user.getUserId() == null) {
+		if(user.getUserId() == null) { // 아이디가 없으면
+			log.info("회원정보 업데이트 실패 ------> " + Constants.NOT_EXIST_ID);
+			result.put("HttpStatus","1.04");
+			result.put("Msg",Constants.NOT_EXIST_ID);			
+			return result ; 
+		} else if(memberDto.getPassword() != null && !passwordEncoder.matches(memberDto.getPassword(), user.getPassword())) { // 패스워드 변경시
+			log.info("회원정보 패스워드 업데이트 ------> " + user.getUserId());
+			 user.setPassword(passwordEncoder.encode(memberDto.getPassword()));			 
+			 result.put("HttpStatus","2.00");
+			 result.put("Msg",Constants.SUCCESS);		 
+			 return result ; // 요청 성공	
+		} else {
 			
-			return HttpStatus.UNPROCESSABLE_ENTITY ; // 요청은 잘 만들어졌지만, 문법 오류로 인하여 따를 수 없습니다.
-		}
-						
-		 user.setUserName(memberDto.getUserName());
-		 user.setPassword(memberDto.getPassword());
-		 user.setBirth(memberDto.getBirth());
-		 user.setAge(memberDto.getAge());
-		 user.setSex(memberDto.getSex());
-		 		 		 
-		 return HttpStatus.OK ; // 요청 성공				
+			 user.setUserName(memberDto.getUserName());
+			 user.setEmail(memberDto.getEmail());			 
+			 user.setBirth(memberDto.getBirth());
+			 user.setAge(memberDto.getAge());
+			 user.setSex(memberDto.getSex());
+			 
+			 result.put("HttpStatus","2.00");
+			 result.put("Msg",Constants.SUCCESS);
+			 log.info("회원정보 업데이트 ------> " + user.getUserId()); 
+			 return result ; // 요청 성공			
+		}				
+				 	
 	}
 	
 	/**
@@ -128,52 +178,45 @@ public class MemberService {
 	 * @param memberId
 	 * @return
 	 */
-	public HttpStatus deleteMember(String userId) {
+	public Map<String, String> deleteMember(String userId) {
+		Map<String, String> result = new HashMap<String, String>();
 		
 		 if(memberRepository.findById(userId).isPresent() == true ) {
 			 memberRepository.deleteById(userId);
 			 log.info("삭제 성공 ------> " + userId);
-			 
-			 return HttpStatus.OK ; // 요청 성공	
+			 result.put("HttpStatus", "2.00");
+			 result.put("Msg", Constants.SUCCESS);
+			 return result ;	
 		 } else {
 			 log.info("삭제 실패 ------> " + userId);
-			 return HttpStatus.INTERNAL_SERVER_ERROR ; // 서버가 처리 방법을 모르는 상황이 발생했습니다. 서버는 아직 처리 방법을 알 수 없습니다.	
+			 result.put("HttpStatus", "1.00");
+			 result.put("Msg", Constants.FAIL);
+			 return result ; // 서버가 처리 방법을 모르는 상황이 발생했습니다. 서버는 아직 처리 방법을 알 수 없습니다.	
 		 }
 	
 }	
-	
+	@Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
 	public Map<String, String> loginMember(MemberDto memberDto) {
 		Map<String, String> result = new HashMap<String, String>();
 		
 		MemberEntity memberEntity = memberRepository.findByUserId(memberDto.getUserId());
 		    if (!passwordEncoder.matches(memberDto.getPassword(), memberEntity.getPassword())) {
-		    	result.put("HttpStatus", "422");
+		    	result.put("HttpStatus", "1.03");
 		    	result.put("UserId", null);
+		    	result.put("Msg", Constants.INBALID_ID_PASSWORD);
+		    	
 		    } else {
-		    result.put("HttpStatus", "200");
+		    memberEntity.setRefreshToken((jwtTokenProvider.createRefreshToken())); // refresh Token DB 저장
+		    result.put("HttpStatus", "2.00");
 		    result.put("Header", jwtTokenProvider.createToken(memberDto.getUserId()));
+		    result.put("refreshToken", memberEntity.getRefreshToken());
 		    result.put("UserId", memberDto.getUserId());
-//		    return new MemberLoginResponseDto(MemberEntity.getUserId(), jwtTokenProvider.createToken(requestDto.getEmail()));
+		    result.put("Msg", Constants.SUCCESS);
+		    
 		    }
 		    return result ;	
 		    
 		    
-//		memberDto.setPassword(Encrypt.sha2String(memberDto.getPassword()));
-//		
-//		MemberEntity memberEntity = memberRepository.findByUserId(memberDto.getUserId());
-//		
-//		Map<String, String> result = new HashMap<String, String>();
-//		
-//		if (memberEntity.getUserId().equals(memberDto.getUserId()) && memberEntity.getPassword().equals(memberDto.getPassword())) {	
-//			System.out.println(jwtTokenProvider.createToken(memberDto.getUserId()));
-////			result.put("Header", jwtTokenProvider.createToken(memberDto.getUserId()));
-//			result.put("Header", jwtTokenProvider.createToken(memberDto.getUserId()));
-//			result.put("HttpStatus", "200");
-//				        							
-//		} else {
-//			result.put("HttpStatus", "422");			
-//		}
-//		return result ;		
-//	}
+
 }
 }
