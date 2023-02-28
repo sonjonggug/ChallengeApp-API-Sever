@@ -15,6 +15,7 @@ public class MemberDto {
  private String joinDate; 
  private String loginDate;
  private String authority;
+ private String accessToken;
  private String refreshToken;
  
 }

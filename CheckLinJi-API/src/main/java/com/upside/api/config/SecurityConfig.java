@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +20,13 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
-
+    
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+     // antMatchers 부분도 deprecated 되어 requestMatchers로 대체
+        return (web) -> web.ignoring().requestMatchers("/css/**", "/js/**", "/img/**");
+    }
+    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable() // rest api이므로 csrf 보안 미사용
@@ -27,11 +34,15 @@ public class SecurityConfig {
         .formLogin().disable() // rest api 폼 로그인 인증 방식을 비활성화
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // jwt로 인증하므로 세션 미사용        
         http.authorizeHttpRequests() // HTTP 요청에 대한 인가 규칙을 설정
-        		.requestMatchers("/api/members/sign/**").permitAll()  // login 없이 접근 허용 하는 URL
-        		.requestMatchers("/api/members/login/**").permitAll()  // login 없이 접근 허용 하는 URL
-                .requestMatchers("/api/admin/**").hasRole("ADMIN") // admin 의 경우 ADMIN 권한이 있는 사용자만 접근이 가능
-                .anyRequest().authenticated() // 그 외 모든 요청은 인증과정 필요               
-                .and()
+//        		.requestMatchers("/*").permitAll()  // login 없이 접근 허용 하는 URL
+//        		.requestMatchers("/api/members/sign/**").permitAll()  // login 없이 접근 허용 하는 URL
+//        		.requestMatchers("/api/members/login/**").permitAll()  // login 없이 접근 허용 하는 URL
+//        		.requestMatchers("/api/members/refreshToken/**").permitAll()  // login 없이 접근 허용 하는 URL
+//        		.requestMatchers("/api/social/login/**").permitAll()  // login 없이 접근 허용 하는 URL
+//                .requestMatchers("/api/admin/**").hasRole("ADMIN") // admin 의 경우 ADMIN 권한이 있는 사용자만 접근이 가능
+//                .anyRequest().authenticated() // 그 외 모든 요청은 인증과정 필요 
+        		.anyRequest().permitAll() // 그 외 모든 요청은 인증과정 필요 
+                .and()                
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class); //  JWT 인증 필터를 추가합니다.
 
         return http.build();

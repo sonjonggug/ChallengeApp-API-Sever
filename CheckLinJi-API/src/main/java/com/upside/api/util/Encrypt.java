@@ -1,4 +1,4 @@
-package com.upside.api.config;
+package com.upside.api.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
