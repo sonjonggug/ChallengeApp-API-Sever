@@ -30,8 +30,11 @@ public class SocialController {
     @GetMapping
     public String socialKakaoLogin(ModelAndView mav) {
 
-        return "Login";
+        return "Login2";
     }
+    
+    
+    
     @ResponseBody
     // 인증 완료 후 리다이렉트 페이지
     @GetMapping("/kakao")
@@ -50,25 +53,41 @@ public class SocialController {
    		 }
    		 
    		
-   		Map<String, String> result = memberService.validateEmail(getKakaoUserInfo.get("Email") , getKakaoUserInfo.get("NickName"));
+   		Map<String, String> result = memberService.validateEmail(getKakaoUserInfo.get("Email"));
    		
    		if(result.get("HttpStatus").equals("2.01")) { // 신규 회원일 경우
    			message.setStatusCode("2.01");
-   			message.setUserEmail(result.get("UserEmail"));
-   			message.setUserNickName("NickName");
+   			message.setUserEmail(result.get("UserEmail"));   			
    			return new ResponseEntity<>(message,HttpStatus.OK);
-   		} else if (result.get("HttpStatus").equals("2.02")){ // 이메일은 있으나 닉네임이 다를경우     			
-   			message.setStatusCode("2.02");
-   			message.setMsg(result.get("Msg"));   			   			
-   			return new ResponseEntity<>(message,HttpStatus.OK);
-   		}else { // 로그인    			
+   		} else { // 로그인    			
    			message.setStatusCode("2.00");
    			message.setUserEmail(result.get("UserId"));
    			message.setToKen(result.get("Token"));
    			message.setRefreshToken(result.get("RefreshToken"));
    			return new ResponseEntity<>(message,HttpStatus.OK);
    		}
-   		    		    		   		 
-   		 
+   		    		    		   		    		 
+   	}
+    
+    @ResponseBody
+    // 인증 완료 후 리다이렉트 페이지
+    @GetMapping("/google")
+   	public ResponseEntity<MessageDto> redirectGoogle (@RequestParam String Email)  {							 
+    	 
+    	 MessageDto message = new MessageDto();
+    	    		  		    	   		 		   		    	
+   		Map<String, String> result = memberService.validateEmail(Email);
+   		
+   		if(result.get("HttpStatus").equals("2.01")) { // 신규 회원일 경우
+   			message.setStatusCode("2.01");
+   			message.setUserEmail(result.get("UserEmail"));   			
+   			return new ResponseEntity<>(message,HttpStatus.OK);
+   		} else { // 로그인    			
+   			message.setStatusCode("2.00");
+   			message.setUserEmail(result.get("UserId"));
+   			message.setToKen(result.get("Token"));
+   			message.setRefreshToken(result.get("RefreshToken"));
+   			return new ResponseEntity<>(message,HttpStatus.OK);
+   		}  		    		    		   		    		 
    	}
 }

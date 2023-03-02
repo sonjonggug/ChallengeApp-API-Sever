@@ -325,7 +325,7 @@ public class MemberService {
      * @return
      */ 
     @Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
-    public Map<String, String> validateEmail(String email , String nickName) {
+    public Map<String, String> validateEmail(String email) {
     	
     	Map<String, String> result = new HashMap<String, String>();
     	log.info("소셜 로그인 ------> Start ");
@@ -335,16 +335,10 @@ public class MemberService {
     		log.info("소셜 로그인 ------> 이메일이 DB에 없는경우 (신규 회원)");
     		result.put("HttpStatus", "2.01");
     		result.put("Msg", Constants.SUCCESS);
-	    	result.put("UserEmail", email);
-	    	result.put("NickName", nickName);
+	    	result.put("UserEmail", email);	    	
 	    	return result;
-    	} else if (!user.getNickName().equals(nickName)) {    // 이메일은 있으나 닉네임이 다를경우
-    		log.info("소셜 로그인 ------>  이메일은 있으나 닉네임이 다를경우 (가입된 회원)");
-		result.put("HttpStatus", "2.02");
-		result.put("Msg", "이미 가입된 이메일입니다.");    	
-    	return result;
     	}else {    // 회원 로그인 
-    		log.info("소셜 로그인 ------>  이메일도 있고 닉네임도 같을경우 (로그인)");	
+    		log.info("소셜 로그인 ------>  이메일이 DB에 있는경우 (로그인)");	
     	user.setRefreshToken((jwtTokenProvider.createRefreshToken())); // refresh Token DB 저장		    		    
 		result.put("Token", jwtTokenProvider.createToken(user.getUserId()));
 		result.put("RefreshToken", user.getRefreshToken());
