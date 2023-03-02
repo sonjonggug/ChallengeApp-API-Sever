@@ -13,8 +13,8 @@ public class Constants {
 //	1.06 올바르지않는 토큰입니다.
 	
 //	2.00 정상적으로 처리가 완료되었습니다.
-//	2.01 인증 실패(Auth Fail)
-//	2.02 요청 횟수 제한(Over Request Hits)
+//	2.01 회원가입으로
+//	2.02 올바른 요청이나 처리하지 못함
 //	2.03 지원하지 않는 URL(URL Not Support)
 //	3.00 서버 오류(Server E
 	

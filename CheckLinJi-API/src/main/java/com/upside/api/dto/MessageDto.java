@@ -6,6 +6,8 @@ import lombok.Data;
 public class MessageDto {
  
  private String userId;
+ private String userEmail;
+ private String userNickName;
  private String msg;
  private String statusCode;
  private String toKen;

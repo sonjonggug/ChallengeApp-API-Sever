@@ -27,8 +27,11 @@ public class MemberEntity {
  @Column(name = "password")
  private String password;
  
- @Column(name = "userName")
- private String userName;
+ @Column(name = "name")
+ private String name;
+ 
+ @Column(name = "nickName")
+ private String nickName;
  
  @Column(name = "age")
  private int age;
@@ -66,12 +69,13 @@ public class MemberEntity {
 
 
 @Builder
-public MemberEntity(String userId, String password, String userName, int age, String email, String birth, String sex,
+public MemberEntity(String userId, String password, String name, String nickName, int age, String email, String birth, String sex,
 		String joinDate, String loginDate , String authority) {
 	super();
 	this.userId = userId;
 	this.password = password;
-	this.userName = userName;
+	this.name = name;
+	this.nickName = nickName;
 	this.age = age;
 	this.email = email;
 	this.birth = birth;

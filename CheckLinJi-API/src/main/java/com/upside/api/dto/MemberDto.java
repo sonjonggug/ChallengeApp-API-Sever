@@ -7,7 +7,8 @@ public class MemberDto {
  
  private String userId;
  private String password;
- private String userName;
+ private String name;
+ private String nickName;
  private int age;
  private String email;  
  private String birth;  

@@ -52,7 +52,7 @@ public class MemberService {
 	public Map<String, String> signUp(MemberDto memberDto) {
 		Map<String, String> result = new HashMap<String, String>();
 		
-		if(memberDto.getUserId() == null || memberDto.getUserName() == null || memberDto.getPassword() == null || memberDto.getEmail() == null ||
+		if(memberDto.getUserId() == null || memberDto.getName() == null || memberDto.getNickName() == null || memberDto.getPassword() == null || memberDto.getEmail() == null ||
 		   memberDto.getAge() == 0 || memberDto.getBirth() == null || memberDto.getSex() == null || memberDto.getAuthority() == null ) {  
 		    									
 			log.info("회원가입 실패 ------> " + Constants.NOT_EXIST_PARAMETER);
@@ -77,7 +77,8 @@ public class MemberService {
 		
 		MemberEntity memberEntity = MemberEntity.builder()
 				.userId(memberDto.getUserId())
-				.userName(memberDto.getUserName())
+				.name(memberDto.getName())
+				.nickName(memberDto.getNickName())
 				.password(passwordEncoder.encode(memberDto.getPassword())) 
 				.email(memberDto.getEmail())
 				.age(memberDto.getAge())
@@ -161,7 +162,8 @@ public class MemberService {
 			 return result ; // 요청 성공	
 		} else {
 			
-			 user.setUserName(memberDto.getUserName());
+			 user.setName(memberDto.getName());
+			 user.setNickName(memberDto.getNickName());
 			 user.setEmail(memberDto.getEmail());			 
 			 user.setBirth(memberDto.getBirth());
 			 user.setAge(memberDto.getAge());
@@ -197,6 +199,11 @@ public class MemberService {
 		 }
 	
 }	
+	/**
+	 * 회원 로그인
+	 * @param memberDto
+	 * @return
+	 */
 	@Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
 	public Map<String, String> loginMember(MemberDto memberDto) {
 		Map<String, String> result = new HashMap<String, String>();
@@ -237,7 +244,7 @@ public class MemberService {
      * @param requestDto
      * @return
      */
-    @Transactional
+    @Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
     public Map<String, String> validateRefreshToken (MemberDto memberDto) {
     	
     	Map<String, String> result = new HashMap<String, String>();
@@ -310,5 +317,41 @@ public class MemberService {
         	return null ;
         }        
     }
-	
+    
+    /**
+     * 유효한 토큰이라면 AccessToken으로부터 Id 정보를 받아와 DB에 저장된 회원을 찾고 ,
+     * 해당 회원의 실제 Refresh Token을 받아온다.
+     * @param requestDto
+     * @return
+     */ 
+    @Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
+    public Map<String, String> validateEmail(String email , String nickName) {
+    	
+    	Map<String, String> result = new HashMap<String, String>();
+    	log.info("소셜 로그인 ------> Start ");
+    	MemberEntity user = memberRepository.findByEmail(email);
+       
+    	if(user == null) { // 신규 회원
+    		log.info("소셜 로그인 ------> 이메일이 DB에 없는경우 (신규 회원)");
+    		result.put("HttpStatus", "2.01");
+    		result.put("Msg", Constants.SUCCESS);
+	    	result.put("UserEmail", email);
+	    	result.put("NickName", nickName);
+	    	return result;
+    	} else if (!user.getNickName().equals(nickName)) {    // 이메일은 있으나 닉네임이 다를경우
+    		log.info("소셜 로그인 ------>  이메일은 있으나 닉네임이 다를경우 (가입된 회원)");
+		result.put("HttpStatus", "2.02");
+		result.put("Msg", "이미 가입된 이메일입니다.");    	
+    	return result;
+    	}else {    // 회원 로그인 
+    		log.info("소셜 로그인 ------>  이메일도 있고 닉네임도 같을경우 (로그인)");	
+    	user.setRefreshToken((jwtTokenProvider.createRefreshToken())); // refresh Token DB 저장		    		    
+		result.put("Token", jwtTokenProvider.createToken(user.getUserId()));
+		result.put("RefreshToken", user.getRefreshToken());
+    	result.put("HttpStatus", "2.00");
+		result.put("Msg", Constants.SUCCESS);
+    	result.put("UserId", user.getUserId());
+    	return result;
+    	}
+   }
 }

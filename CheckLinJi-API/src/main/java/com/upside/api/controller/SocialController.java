@@ -1,7 +1,7 @@
 package com.upside.api.controller;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.upside.api.dto.MessageDto;
-import com.upside.api.service.OAuthSerivce;
+import com.upside.api.service.KaKaoOAuthSerivce;
+import com.upside.api.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,70 +22,53 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/social/login")
 public class SocialController {
-
-    private final Environment env;
-    private final OAuthSerivce oAuthSerivce;
-
-    @Value("${kakao.client_id}")
-    private String kakaoClientId;
-
-    @Value("${kakao.redirect_uri}")
-    private String kakaoRedirect;
-
-//    @Value("${spring.social.google.client_id}")
-//    private String googleClientId;
-//
-//    @Value("${spring.social.google.redirect}")
-//    private String googleRedirect;
-//
-//    @Value("${spring.social.naver.client_id}")
-//    private String naverClientId;
-//
-//    @Value("${spring.social.naver.redirect}")
-//    private String naverRedirect;
+    
+    private final KaKaoOAuthSerivce oAuthSerivce;
+    private final MemberService memberService;    
 
     // 카카오 로그인 페이지 테스트
     @GetMapping
     public String socialKakaoLogin(ModelAndView mav) {
-        StringBuilder loginUrl1 = new StringBuilder()
-                .append(env.getProperty("spring.social.kakao.url.login"))
-                .append("?client_id=").append(kakaoClientId)
-                .append("&response_type=code")
-                .append("&redirect_uri=").append(kakaoRedirect);
 
-//        StringBuilder loginUrl2 = new StringBuilder()
-//                .append(env.getProperty("spring.social.google.url.login"))
-//                .append("?client_id=").append(googleClientId)
-//                .append("&response_type=code")
-//                .append("&scope=email%20profile")
-//                .append("&redirect_uri=").append(googleRedirect);
-//
-//        StringBuilder loginUrl3 = new StringBuilder()
-//                .append(env.getProperty("spring.social.naver.url.login"))
-//                .append("?client_id=").append(naverClientId)
-//                .append("&response_type=code")
-//                .append("&state=project")
-//                .append("&redirect_uri=").append(naverRedirect);
-
-//        mav.addObject("loginUrl1", loginUrl1);
-////        mav.addObject("loginUrl2", loginUrl2);
-////        mav.addObject("loginUrl3", loginUrl3);
-//        mav.setViewName("login");
         return "Login";
     }
     @ResponseBody
     // 인증 완료 후 리다이렉트 페이지
     @GetMapping("/kakao")
-   	public ResponseEntity<MessageDto> redirectKakao (@RequestParam String code) {							 
-    	System.out.println("ddd");
-    	System.out.println(code);
-   		 String result = oAuthSerivce.getAccessToken(code);
+   	public ResponseEntity<MessageDto> redirectKakao (@RequestParam String code)  {							 
+    	 
+    	 MessageDto message = new MessageDto();
+    	 
+   		 String getKakaoAccessToken = oAuthSerivce.getKakaoAccessToken(code);
    		 
-   		 System.out.println(result);
+   		Map<String, String> getKakaoUserInfo = oAuthSerivce.getKakaoUserInfo(getKakaoAccessToken);
    		 
-   		 MessageDto message = new MessageDto();
-   		    		
-   		 return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST); 
+   		 if(getKakaoUserInfo.get("Email").equals("N") ) {
+   			message.setStatusCode("1.00");
+   			message.setMsg("이메일 정보 수집동의에 체크 해주시기 바랍니다");
+   			return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST);
+   		 }
+   		 
+   		
+   		Map<String, String> result = memberService.validateEmail(getKakaoUserInfo.get("Email") , getKakaoUserInfo.get("NickName"));
+   		
+   		if(result.get("HttpStatus").equals("2.01")) { // 신규 회원일 경우
+   			message.setStatusCode("2.01");
+   			message.setUserEmail(result.get("UserEmail"));
+   			message.setUserNickName("NickName");
+   			return new ResponseEntity<>(message,HttpStatus.OK);
+   		} else if (result.get("HttpStatus").equals("2.02")){ // 이메일은 있으나 닉네임이 다를경우     			
+   			message.setStatusCode("2.02");
+   			message.setMsg(result.get("Msg"));   			   			
+   			return new ResponseEntity<>(message,HttpStatus.OK);
+   		}else { // 로그인    			
+   			message.setStatusCode("2.00");
+   			message.setUserEmail(result.get("UserId"));
+   			message.setToKen(result.get("Token"));
+   			message.setRefreshToken(result.get("RefreshToken"));
+   			return new ResponseEntity<>(message,HttpStatus.OK);
+   		}
+   		    		    		   		 
    		 
    	}
 }
