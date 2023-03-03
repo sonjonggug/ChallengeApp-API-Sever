@@ -18,55 +18,45 @@ import lombok.NoArgsConstructor;
 @DynamicUpdate  // 변경된 필드만 적용
 @DynamicInsert  // 변경된 필드만 적용
 @Table(name = "MemberInfo")
-public class MemberEntity {
+public class MemberEntity { // User 테이블: 사용자 정보를 저장하는 테이블
 
  @Id
 // @GeneratedValue(strategy = GenerationType.IDENTITY)
  private String userId;
  
- @Column(name = "password")
+ @Column(nullable = false , name = "password")
  private String password;
  
- @Column(name = "name")
+ @Column(nullable = false , name = "name")
  private String name;
  
- @Column(name = "nickName")
+ @Column(nullable = false , name = "nickName" ,  unique = true )
  private String nickName;
  
- @Column(name = "age")
+ @Column(nullable = false , name = "age")
  private int age;
  
- @Column(name = "email")
+ @Column(nullable = false , name = "email" ,  unique = true )
  private String email;  
  
- @Column(name = "birth")
+ @Column(nullable = false , name = "birth")
  private String birth;
  
- @Column(name = "sex")
+ @Column(nullable = false , name = "sex")
  private String sex;
  
- @Column(name = "joinDate")
+ @Column(nullable = false , name = "joinDate")
  private String joinDate;
  
- @Column(name = "loginDate")
+ @Column(nullable = false , name = "loginDate")
  private String loginDate;
 
- @Column(name = "authority")
+ @Column(nullable = false , name = "authority")
  private String authority;
  
  @Column(name = "refreshToken")
  private String refreshToken;
  
- 
-	/*
-	 * public void save (MemberDto memberDto) { this.userId = memberDto.getUserId();
-	 * this.password = memberDto.getPassword(); this.userName =
-	 * memberDto.getUserName(); this.age = memberDto.getAge(); this.email =
-	 * memberDto.getEmail(); this.birth = memberDto.getBirth(); this.sex =
-	 * memberDto.getSex(); this.joinDate = memberDto.getJoinDate(); this.loginDate =
-	 * memberDto.getLoginDate(); }
-	 */
-
 
 @Builder
 public MemberEntity(String userId, String password, String name, String nickName, int age, String email, String birth, String sex,
