@@ -18,9 +18,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.upside.api.dto.ChallengeDto;
 import com.upside.api.dto.MemberDto;
 import com.upside.api.dto.MessageDto;
 import com.upside.api.entity.MemberEntity;
+import com.upside.api.service.ChallengeSerivce;
 import com.upside.api.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
@@ -30,22 +32,17 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/challenge")
 public class ChallengeController {
 	
-	private final MemberService memberService ;
+	private final ChallengeSerivce challengeSerivce ;
 				
 	
-	@GetMapping 						  /* default size = 10 */
-	public Page<MemberEntity> memberList(@PageableDefault (sort = "userId", direction = Sort.Direction.DESC) Pageable pageable  ) {
-				
-				
-		return memberService.memberList(pageable);
-	}
+	
 		
 	@PostMapping("/create") // 첼린지 생성
-	public ResponseEntity<MessageDto>createhallenge (@RequestBody MemberDto memberDto) {
-			
-		Map<String, String> result = memberService.signUp(memberDto);
-		MessageDto message = new MessageDto();
+	public ResponseEntity<MessageDto>createChallenge (@RequestBody ChallengeDto challengeDto) {
 		
+		MessageDto message = new MessageDto();		
+		Map<String, String> result = challengeSerivce.createChallenge(challengeDto);
+				
 		if (result.get("HttpStatus").equals("2.00")) { // 성공
 			message.setMsg(result.get("Msg"));
 			message.setStatusCode(result.get("HttpStatus"));						
@@ -59,11 +56,11 @@ public class ChallengeController {
 	}
 	
 	@PostMapping("/join") // 첼린지 참가
-	public ResponseEntity<MessageDto> joinChallenge (@RequestBody MemberDto memberDto) {
+	public ResponseEntity<MessageDto> joinChallenge (@RequestBody ChallengeDto challengeDto) {
 			
-		Map<String, String> result = memberService.signUp(memberDto);
-		MessageDto message = new MessageDto();
-		
+		MessageDto message = new MessageDto();		
+		Map<String, String> result = challengeSerivce.createChallenge(challengeDto);
+				
 		if (result.get("HttpStatus").equals("2.00")) { // 성공
 			message.setMsg(result.get("Msg"));
 			message.setStatusCode(result.get("HttpStatus"));						
@@ -77,11 +74,11 @@ public class ChallengeController {
 	}
 	
 	@PostMapping("/submit") // 첼린지 제출
-	public ResponseEntity<MessageDto> submitChallenge (@RequestBody MemberDto memberDto) {
+	public ResponseEntity<MessageDto> submitChallenge (@RequestBody ChallengeDto challengeDto) {
 			
-		Map<String, String> result = memberService.signUp(memberDto);
-		MessageDto message = new MessageDto();
-		
+		MessageDto message = new MessageDto();		
+		Map<String, String> result = challengeSerivce.createChallenge(challengeDto);
+				
 		if (result.get("HttpStatus").equals("2.00")) { // 성공
 			message.setMsg(result.get("Msg"));
 			message.setStatusCode(result.get("HttpStatus"));						
@@ -94,11 +91,11 @@ public class ChallengeController {
 	}
 	
 		@PostMapping("/completed") // 챌린지 완료 처리
-		public ResponseEntity<MessageDto> completedChallenge (@RequestBody MemberDto memberDto) {
+		public ResponseEntity<MessageDto> completedChallenge (@RequestBody ChallengeDto challengeDto) {
 				
-			Map<String, String> result = memberService.signUp(memberDto);
-			MessageDto message = new MessageDto();
-			
+			MessageDto message = new MessageDto();		
+			Map<String, String> result = challengeSerivce.createChallenge(challengeDto);
+					
 			if (result.get("HttpStatus").equals("2.00")) { // 성공
 				message.setMsg(result.get("Msg"));
 				message.setStatusCode(result.get("HttpStatus"));						
@@ -108,6 +105,5 @@ public class ChallengeController {
 				message.setStatusCode(result.get("HttpStatus"));
 				return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST);
 			} 
-		
-	}
   }
+}

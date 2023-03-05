@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @DynamicUpdate  // 변경된 필드만 적용
 @DynamicInsert  // 변경된 필드만 적용
 @Table(name = "UserChallenge")
-public class UserChallengeEntity { // UserChallenge 테이블: 사용자가 참여한 첼린지 정보를 저장하는 테이블
+public class UserChallengeEntity { // 사용자가 참여한 첼린지 정보를 저장하는 테이블
 
  @Id
  @GeneratedValue(strategy = GenerationType.IDENTITY)

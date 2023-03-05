@@ -97,15 +97,13 @@ public class MemberService {
 			 log.info("회원가입 성공 ------> " + memberDto.getUserId());
 			 result.put("HttpStatus","2.00");
 			 result.put("UserId",memberDto.getUserId());
-			 result.put("Msg",Constants.SUCCESS);
-			 return result;  // 인서트 성공  
+			 result.put("Msg",Constants.SUCCESS);			  
 		 } else {
 			 log.info("회원가입 실패 ------> " + Constants.FAIL);
 			 result.put("HttpStatus","1.00");
-			 result.put("Msg",Constants.FAIL);
-			 return result ; 
+			 result.put("Msg",Constants.FAIL);			  
 		 }
-		 
+		 return result ;
 	}
 	
 	 /**
@@ -153,15 +151,14 @@ public class MemberService {
 			log.info("회원정보 업데이트 실패 ------> " + Constants.NOT_EXIST_ID);
 			result.put("HttpStatus","1.04");
 			result.put("Msg",Constants.NOT_EXIST_ID);			
-			return result ; 
+			
 		} else if(memberDto.getPassword() != null && !passwordEncoder.matches(memberDto.getPassword(), user.getPassword())) { // 패스워드 변경시
 			log.info("회원정보 패스워드 업데이트 ------> " + user.getUserId());
 			 user.setPassword(passwordEncoder.encode(memberDto.getPassword()));			 
 			 result.put("HttpStatus","2.00");
 			 result.put("Msg",Constants.SUCCESS);		 
-			 return result ; // 요청 성공	
-		} else {
-			
+			 	
+		} else {			
 			 user.setName(memberDto.getName());
 			 user.setNickName(memberDto.getNickName());
 			 user.setEmail(memberDto.getEmail());			 
@@ -171,10 +168,9 @@ public class MemberService {
 			 
 			 result.put("HttpStatus","2.00");
 			 result.put("Msg",Constants.SUCCESS);
-			 log.info("회원정보 업데이트 ------> " + user.getUserId()); 
-			 return result ; // 요청 성공			
+			 log.info("회원정보 업데이트 ------> " + user.getUserId()); 			 			
 		}				
-				 	
+		return result ; // 요청 성공	 	
 	}
 	
 	/**
@@ -190,14 +186,14 @@ public class MemberService {
 			 log.info("삭제 성공 ------> " + userId);
 			 result.put("HttpStatus", "2.00");
 			 result.put("Msg", Constants.SUCCESS);
-			 return result ;	
+			 
 		 } else {
 			 log.info("삭제 실패 ------> " + userId);
 			 result.put("HttpStatus", "1.00");
 			 result.put("Msg", Constants.FAIL);
-			 return result ; // 서버가 처리 방법을 모르는 상황이 발생했습니다. 서버는 아직 처리 방법을 알 수 없습니다.	
+			 	
 		 }
-	
+		 return result ; 
 }	
 	/**
 	 * 회원 로그인
@@ -331,21 +327,21 @@ public class MemberService {
     	log.info("소셜 로그인 ------> Start ");
     	MemberEntity user = memberRepository.findByEmail(email);
        
-    	if(user == null) { // 신규 회원
+    	if(user == null) { 
     		log.info("소셜 로그인 ------> 이메일이 DB에 없는경우 (신규 회원)");
     		result.put("HttpStatus", "2.01");
     		result.put("Msg", Constants.SUCCESS);
-	    	result.put("UserEmail", email);	    	
-	    	return result;
-    	}else {    // 회원 로그인 
+	    	result.put("UserEmail", email);	    		    	
+    	}else {     
     		log.info("소셜 로그인 ------>  이메일이 DB에 있는경우 (로그인)");	
-    	user.setRefreshToken((jwtTokenProvider.createRefreshToken())); // refresh Token DB 저장		    		    
-		result.put("Token", jwtTokenProvider.createToken(user.getUserId()));
-		result.put("RefreshToken", user.getRefreshToken());
-    	result.put("HttpStatus", "2.00");
-		result.put("Msg", Constants.SUCCESS);
-    	result.put("UserId", user.getUserId());
-    	return result;
+	    	user.setRefreshToken((jwtTokenProvider.createRefreshToken())); // refresh Token DB 저장		    		    
+			result.put("Token", jwtTokenProvider.createToken(user.getUserId()));
+			result.put("RefreshToken", user.getRefreshToken());
+	    	result.put("HttpStatus", "2.00");
+			result.put("Msg", Constants.SUCCESS);
+	    	result.put("UserId", user.getUserId());
+
     	}
+    	return result;
    }
 }

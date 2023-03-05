@@ -5,6 +5,7 @@ package com.upside.api.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -20,5 +21,7 @@ public interface ChallengeRepository extends JpaRepository<ChallengeEntity, Long
 	 * @return
 	 */
 	List<ChallengeEntity> findByStartTimeBeforeAndEndTimeAfter(LocalDateTime before, LocalDateTime after);
+	
+	 Optional<ChallengeEntity> findByChallengeName (String challengeName);
 }
 
