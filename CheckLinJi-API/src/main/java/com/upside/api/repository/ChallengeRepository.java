@@ -3,6 +3,7 @@ package com.upside.api.repository;
 
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.upside.api.entity.ChallengeEntity;
 
-public interface ChallengeRepository extends JpaRepository<ChallengeEntity, Long> {
+public interface ChallengeRepository extends JpaRepository<ChallengeEntity, String> {
 		 
 //	
 	/**	  
@@ -22,6 +23,10 @@ public interface ChallengeRepository extends JpaRepository<ChallengeEntity, Long
 	 */
 	List<ChallengeEntity> findByStartTimeBeforeAndEndTimeAfter(LocalDateTime before, LocalDateTime after);
 	
-	 Optional<ChallengeEntity> findByChallengeName (String challengeName);
+	Optional<ChallengeEntity> findByStartTimeAndEndTime (LocalDate startDate , LocalDate endDate);
+	
+	 Optional<ChallengeEntity> findByDescription (String challengeDescription);
+	 
+	 ChallengeEntity findByChallengeName (String challengeName);
 }
 

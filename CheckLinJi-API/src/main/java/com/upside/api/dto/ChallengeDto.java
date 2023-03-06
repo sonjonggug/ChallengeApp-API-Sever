@@ -12,7 +12,7 @@ public class ChallengeDto { // Challenge 테이블: 첼린지 정보를 저장�
  private Long challengeId;
  private String challengeName; 
  private String description;  
- private LocalDateTime  startTime; 
- private LocalDateTime  endTime;
+ private String  startTime; 
+ private String  endTime;
  
 }

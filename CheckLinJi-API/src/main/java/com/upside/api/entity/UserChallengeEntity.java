@@ -1,6 +1,7 @@
 package com.upside.api.entity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.Optional;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -36,19 +37,19 @@ public class UserChallengeEntity { // 사용자가 참여한 첼린지 정보를
  @JoinColumn(name = "user_id") // 외래 키를 매핑할 때 사용합니다. name 속성에는 매핑 할 외래 키 이름을 지정합니다.
  private MemberEntity memberEntity;
 
- @ManyToOne(fetch = FetchType.LAZY)
- @JoinColumn(name = "challenge_id")
- private ChallengeEntity challengeEntity;
+ @ManyToOne(fetch = FetchType.LAZY , optional = true) // optional = 널값 허용 
+ @JoinColumn(name = "challenge_name")
+ private ChallengeEntity challengeEntity ;
  
  @Column(nullable = false) // 등록일
- private LocalDateTime registrationTime;
+ private LocalDate registrationTime;
 
  @Column(nullable = false) // 완료 여부
  private boolean completed;
  
  
 @Builder
-public UserChallengeEntity(MemberEntity memberEntity , ChallengeEntity challengeEntity , LocalDateTime registrationTime , boolean completed) {		
+public UserChallengeEntity(MemberEntity memberEntity , ChallengeEntity challengeEntity , LocalDate registrationTime , boolean completed) {		
 	super();
 	this.memberEntity = memberEntity;
 	this.challengeEntity = challengeEntity;	

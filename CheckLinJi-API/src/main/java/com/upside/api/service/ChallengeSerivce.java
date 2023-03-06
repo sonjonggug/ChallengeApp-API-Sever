@@ -2,9 +2,12 @@ package com.upside.api.service;
 
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +18,11 @@ import com.upside.api.entity.ChallengeEntity;
 import com.upside.api.entity.MemberEntity;
 import com.upside.api.entity.UserChallengeEntity;
 import com.upside.api.repository.ChallengeRepository;
+import com.upside.api.repository.MemberRepository;
 import com.upside.api.repository.UserChallengeRepository;
 import com.upside.api.util.Constants;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,8 +34,10 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class ChallengeSerivce {
 		
-	private final ChallengeRepository challengeRepository;
+	 private final ChallengeRepository challengeRepository;
 	 private final UserChallengeRepository userChallengeRepository;
+	 private final MemberRepository memberRepository;
+	 	 
 	
 	
 	/**
@@ -39,31 +46,56 @@ public class ChallengeSerivce {
 	 * @return
 	 */
 	@Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
-	public Map<String, String> createChallenge (ChallengeDto challengeDTO) {
+	public Map<String, String> createChallenge (ChallengeDto challengeDto) {
 		Map<String, String> result = new HashMap<String, String>();
 		
 		log.info("첼린지 생성 ------> " + "Start");
 		
+		 // 현재 날짜와 시간을 LocalDateTime 객체로 가져옵니다.
+        LocalDateTime now = LocalDateTime.now();
+        
+        // 현재 년도와 월을 가져옵니다.
+        int year = now.getYear();
+//        int month = now.getMonthValue();
+        int month = Integer.parseInt(challengeDto.getStartTime());
+        
+        // YearMonth 객체를 생성하여 해당 월의 날짜 범위를 가져옵니다.
+        YearMonth yearMonth = YearMonth.of(year, month);
+        int daysInMonth = yearMonth.lengthOfMonth();
+        
+        // 월초와 월말의 날짜를 LocalDateTime 객체로 생성합니다.
+        LocalDateTime startOfMonth = LocalDateTime.of(year, month, 1, 0, 0, 0);
+        LocalDateTime endOfMonth = LocalDateTime.of(year, month, daysInMonth, 23, 59, 59);
+        
+        // 월초부터 월말까지의 날짜 범위를 생성합니다.
+        LocalDate startDate = startOfMonth.toLocalDate();
+        LocalDate endDate = endOfMonth.toLocalDate();
+		
+		
+        boolean existsChallenge = challengeRepository.findById(challengeDto.getChallengeName()).isPresent();
+        
+        if(existsChallenge == true) {
+        	 log.info("첼린지 생성 ------> " + "존재하는 첼린지입니다.");
+             result.put("HttpStatus","1.00");		
+      		 result.put("Msg","존재하는 첼린지입니다.");
+      		 return result;
+        }
+		
+		
 		ChallengeEntity challenge =  ChallengeEntity.builder()
-									 .challengeName(challengeDTO.getChallengeName())
-									 .description(challengeDTO.getDescription())
-									 .startTime(challengeDTO.getStartTime())
-									 .endTime(challengeDTO.getEndTime())
+									 .challengeName(challengeDto.getChallengeName())
+									 .description(challengeDto.getDescription())
+									 .startTime(startDate)
+									 .endTime(endDate)
 									 .build();
-				
+		
+		
+		
         challengeRepository.save(challenge);
         
-        boolean  exsistChallenge = challengeRepository.findByChallengeName(challengeDTO.getChallengeName()).isPresent();
-        
-        if(exsistChallenge == true) {
-         log.info("첼린지 생성 ------> " + Constants.SUCCESS);
-         result.put("HttpStatus","2.00");		
-		 result.put("Msg",Constants.SUCCESS);
-        } else {
-    	 log.info("첼린지 생성 ------> " + Constants.FAIL);
-         result.put("HttpStatus","1.00");		
-   		 result.put("Msg",Constants.FAIL);
-        }
+        log.info("첼린지 생성 ------> " + Constants.SUCCESS);
+        result.put("HttpStatus","2.00");		
+		result.put("Msg",Constants.SUCCESS);
 	
 	    return result ;			    		   
 	}
@@ -75,35 +107,50 @@ public class ChallengeSerivce {
 	 * @return
 	 */
 	@Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
-	public Map<String, String> joinChallenge (MemberDto memberDto , ChallengeDto challengeDto) {
+	public Map<String, String> joinChallenge (String challengeName , String userId) {
 		Map<String, String> result = new HashMap<String, String>();
 		
 		log.info("첼린지 가입 ------> " + "Start");
 		
-		 ChallengeEntity challenge =  ChallengeEntity.builder().challengeName(challengeDto.getChallengeName()).build();
-		 
-		 MemberEntity member =  MemberEntity.builder().userId(memberDto.getUserId()).build();
 		
-		 UserChallengeEntity userChallenge =  UserChallengeEntity.builder()
-				 							   .memberEntity(member)
-				 							   .challengeEntity(challenge)
-				 							   .registrationTime(LocalDateTime.now())
-				 							   .completed(false)
-				 							   .build();
-		 userChallengeRepository.save(userChallenge);
+		boolean existsChallenge = challengeRepository.findById(challengeName).isPresent();
+		
+		boolean existsMember = memberRepository.findById(userId).isPresent();
+				
+		
+		if(existsChallenge== false || existsMember== false) {
+			 log.info("첼린지 가입 ------> " + "첼린지 혹은 아이디가 존재하지 않습니다.");
+             result.put("HttpStatus","1.00");		
+     		 result.put("Msg","첼린지 혹은 아이디가 존재하지 않습니다.");
+     	   return result ;
+		}				
+		
+		 ChallengeEntity challenge =  ChallengeEntity.builder().challengeName(challengeName).build();
+						 
+		 MemberEntity member =  MemberEntity.builder().userId(userId).build();
 		 
 		 boolean  exsistUserChallenge = userChallengeRepository.findByMemberEntityAndChallengeEntity(member,challenge).isPresent();
 		 
 		 if(exsistUserChallenge == true) {
+			 log.info("첼린지 가입 ------> " + "이미 참여하였습니다.");
+             result.put("HttpStatus","1.00");		
+     		 result.put("Msg","이미 참여하였습니다.");
+     	   return result ;
+		 }
+		 
+		 UserChallengeEntity userChallenge =  UserChallengeEntity.builder()
+				 							   .memberEntity(member)
+				 							   .challengeEntity(challenge)
+				 							   .registrationTime(LocalDate.now())
+				 							   .completed(false)
+				 							   .build();
+		 
+		 	userChallengeRepository.save(userChallenge);
+		 		 
 	         log.info("첼린지 가입 ------> " + Constants.SUCCESS);
 	         result.put("HttpStatus","2.00");		
-			 result.put("Msg",Constants.SUCCESS);
-	        } else {
-	    	 log.info("첼린지 가입 ------> " + Constants.FAIL);
-	         result.put("HttpStatus","1.00");		
-	   		 result.put("Msg",Constants.FAIL);
-	        }
+			 result.put("Msg",Constants.SUCCESS);	       
 		
-		    return result ;				 	    		   
+		  return result ;				 	    		   
 }	
 	}

@@ -1,14 +1,12 @@
 package com.upside.api.entity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -24,11 +22,12 @@ import lombok.NoArgsConstructor;
 @Table(name = "ChallengeList")
 public class ChallengeEntity { // Challenge 테이블: 첼린지 정보를 저장하는 테이블
 
- @Id
- @GeneratedValue(strategy = GenerationType.IDENTITY)
- @Column(name = "challenge_id")
- private Long challengeId;
+// @Id
+// @GeneratedValue(strategy = GenerationType.IDENTITY)
+// @Column(name = "challenge_id")
+// private Long challengeId;
  
+ @Id
  @Column(nullable = false , name = "challengeName")
  private String challengeName;
  
@@ -36,14 +35,14 @@ public class ChallengeEntity { // Challenge 테이블: 첼린지 정보를 저�
  private String description;
  
  @Column(nullable = false , name = "startTime")
- private LocalDateTime  startTime;
+ private LocalDate  startTime;
  
  @Column(nullable = false , name = "endTime")
- private LocalDateTime  endTime;
+ private LocalDate  endTime;
  
 
 @Builder
-public ChallengeEntity(String challengeName, String description , LocalDateTime startTime, LocalDateTime endTime) {		
+public ChallengeEntity(String challengeName, String description , LocalDate startTime, LocalDate endTime) {		
 	super();
 	this.challengeName = challengeName;
 	this.description = description;	

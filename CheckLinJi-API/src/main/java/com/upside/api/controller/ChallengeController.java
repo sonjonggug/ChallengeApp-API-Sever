@@ -4,26 +4,19 @@ package com.upside.api.controller;
 
 import java.util.Map;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.upside.api.dto.ChallengeDto;
 import com.upside.api.dto.MemberDto;
 import com.upside.api.dto.MessageDto;
-import com.upside.api.entity.MemberEntity;
+import com.upside.api.dto.UserChallengeDto;
 import com.upside.api.service.ChallengeSerivce;
-import com.upside.api.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -56,10 +49,10 @@ public class ChallengeController {
 	}
 	
 	@PostMapping("/join") // 첼린지 참가
-	public ResponseEntity<MessageDto> joinChallenge (@RequestBody ChallengeDto challengeDto) {
+	public ResponseEntity<MessageDto> joinChallenge (@RequestBody UserChallengeDto userChallengeDto) {
 			
 		MessageDto message = new MessageDto();		
-		Map<String, String> result = challengeSerivce.createChallenge(challengeDto);
+		Map<String, String> result = challengeSerivce.joinChallenge(userChallengeDto.getChallengeName() , userChallengeDto.getUserId());
 				
 		if (result.get("HttpStatus").equals("2.00")) { // 성공
 			message.setMsg(result.get("Msg"));
