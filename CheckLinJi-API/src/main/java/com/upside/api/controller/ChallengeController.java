@@ -67,10 +67,10 @@ public class ChallengeController {
 	}
 	
 	@PostMapping("/submit") // 첼린지 제출
-	public ResponseEntity<MessageDto> submitChallenge (@RequestBody ChallengeDto challengeDto) {
+	public ResponseEntity<MessageDto> submitChallenge (@RequestBody  UserChallengeDto userChallengeDto) {
 			
 		MessageDto message = new MessageDto();		
-		Map<String, String> result = challengeSerivce.createChallenge(challengeDto);
+		Map<String, String> result = challengeSerivce.submitChallenge(userChallengeDto.getChallengeName() , userChallengeDto.getUserId());
 				
 		if (result.get("HttpStatus").equals("2.00")) { // 성공
 			message.setMsg(result.get("Msg"));

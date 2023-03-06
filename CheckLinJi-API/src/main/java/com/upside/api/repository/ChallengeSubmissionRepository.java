@@ -3,7 +3,9 @@ package com.upside.api.repository;
 
 
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -19,6 +21,8 @@ public interface ChallengeSubmissionRepository extends JpaRepository<ChallengeSu
 	 * @return
 	 */
 	 List<ChallengeSubmissionEntity> findByUserChallengeOrderBySubmissionTimeDesc (UserChallengeEntity userChallenge);
+	 
+	 Optional<ChallengeSubmissionEntity> findByUserChallengeAndSubmissionTime (UserChallengeEntity userChallenge , LocalDate submissionTime);
 	 	 
 }
 

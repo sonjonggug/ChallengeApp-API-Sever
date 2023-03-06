@@ -15,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.upside.api.dto.ChallengeDto;
 import com.upside.api.dto.MemberDto;
 import com.upside.api.entity.ChallengeEntity;
+import com.upside.api.entity.ChallengeSubmissionEntity;
 import com.upside.api.entity.MemberEntity;
 import com.upside.api.entity.UserChallengeEntity;
 import com.upside.api.repository.ChallengeRepository;
+import com.upside.api.repository.ChallengeSubmissionRepository;
 import com.upside.api.repository.MemberRepository;
 import com.upside.api.repository.UserChallengeRepository;
 import com.upside.api.util.Constants;
@@ -37,6 +39,7 @@ public class ChallengeSerivce {
 	 private final ChallengeRepository challengeRepository;
 	 private final UserChallengeRepository userChallengeRepository;
 	 private final MemberRepository memberRepository;
+	 private final ChallengeSubmissionRepository challengeSubmissionRepository;
 	 	 
 	
 	
@@ -130,6 +133,7 @@ public class ChallengeSerivce {
 		 MemberEntity member =  MemberEntity.builder().userId(userId).build();
 		 
 		 boolean  exsistUserChallenge = userChallengeRepository.findByMemberEntityAndChallengeEntity(member,challenge).isPresent();
+		 		 
 		 
 		 if(exsistUserChallenge == true) {
 			 log.info("첼린지 가입 ------> " + "이미 참여하였습니다.");
@@ -150,7 +154,72 @@ public class ChallengeSerivce {
 	         log.info("첼린지 가입 ------> " + Constants.SUCCESS);
 	         result.put("HttpStatus","2.00");		
 			 result.put("Msg",Constants.SUCCESS);	       
-		
+			 log.info("첼린지 가입 ------> " + "End");
 		  return result ;				 	    		   
-}	
+}
+	
+	
+	/**
+	 * 첼린지 제출
+	 * @param challengeDTO
+	 * @return
+	 */
+	@Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
+	public Map<String, String> submitChallenge (String challengeName , String userId) {
+		Map<String, String> result = new HashMap<String, String>();
+		
+		log.info("첼린지 제출 ------> " + "Start");
+		
+		boolean existsChallenge = challengeRepository.findById(challengeName).isPresent();
+		
+		boolean existsMember = memberRepository.findById(userId).isPresent();
+				
+		
+		if(existsChallenge== false || existsMember== false) {
+			 log.info("첼린지 제출 ------> " + "첼린지 혹은 아이디가 존재하지 않습니다.");
+             result.put("HttpStatus","1.00");		
+     		 result.put("Msg","첼린지 혹은 아이디가 존재하지 않습니다.");
+     	   return result ;
+		}				
+		
+		 	ChallengeEntity challenge =  ChallengeEntity.builder().challengeName(challengeName).build();
+						 
+		 	MemberEntity member =  MemberEntity.builder().userId(userId).build();
+		
+		 	Optional<UserChallengeEntity>  exsistUserChallenge = userChallengeRepository.findByMemberEntityAndChallengeEntity(member,challenge);
+		 	 
+		 	 if(exsistUserChallenge.isPresent() == false) {
+		 		 log.info("첼린지 제출 ------> " + "첼린지에 참여하고 계시지 않습니다.");
+	             result.put("HttpStatus","1.00");		
+	     		 result.put("Msg","첼린지에 참여하고 계시지 않습니다.");
+	     	   return result ; 
+		 	 }
+		 	 		 	
+		 	UserChallengeEntity userChallenge = exsistUserChallenge.get();		 			 	
+		 	
+		 	boolean submitYn = challengeSubmissionRepository.findByUserChallengeAndSubmissionTime(userChallenge, LocalDate.now()).isPresent();
+		 	 
+		 	if(submitYn == true) {
+		 		 log.info("첼린지 제출 ------> " + "오늘은 이미 제출이 완료되었습니다.");
+	             result.put("HttpStatus","1.00");		
+	     		 result.put("Msg","이미 제출이 완료되었습니다.");
+	     	   return result ; 
+		 	}
+		 			 			 			 			 			
+		 	ChallengeSubmissionEntity challengeSubmission = ChallengeSubmissionEntity.builder()
+				   											.submissionTime(LocalDate.now()) // 제출 일시
+				   											.submissionText(true) // 제출 결과
+				   											.userChallenge(userChallenge) // 유저 첼린지 ID 
+				   											.build();
+	        challengeSubmissionRepository.save(challengeSubmission);
+	        userChallenge.setCompleted(true);	        	        
+	        
+	        log.info("첼린지 제출 ------> " + Constants.SUCCESS);
+	        result.put("HttpStatus","2.00");		
+			result.put("Msg",Constants.SUCCESS);	       
+			log.info("첼린지 제출 ------> " + "End");
+	        
+	    return result ;			    		   
+	}
+	
 	}

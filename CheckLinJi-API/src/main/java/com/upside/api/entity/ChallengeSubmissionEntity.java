@@ -1,6 +1,6 @@
 package com.upside.api.entity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -37,15 +37,15 @@ public class ChallengeSubmissionEntity { // ChallengeSubmission 테이블: 사�
 	 private UserChallengeEntity  userChallenge;
 		 
 	 @Column(nullable = false) // 제출 일시
-	 private LocalDateTime submissionTime;
+	 private LocalDate submissionTime;
 
 	 @Column(nullable = false) // 제출 결과
-	 private String  submissionText; 
+	 private boolean  submissionText; 
  
 
 
 @Builder
-public ChallengeSubmissionEntity(UserChallengeEntity userChallenge , LocalDateTime submissionTime , String submissionText) {		
+public ChallengeSubmissionEntity(UserChallengeEntity userChallenge , LocalDate submissionTime , boolean submissionText) {		
 	super();
 	this.userChallenge = userChallenge;	
 	this.submissionTime = submissionTime;
