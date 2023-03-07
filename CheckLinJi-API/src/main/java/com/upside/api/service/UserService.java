@@ -1,5 +1,7 @@
 package com.upside.api.service;
 
+import java.util.Optional;
+
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,19 +24,20 @@ public class UserService implements UserDetailsService{
     
 
     @Override
-    public UserDetails loadUserByUsername(String userid) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     
         //여기서 받은 유저 패스워드와 비교하여 로그인 인증       
-        MemberEntity LoginUser = memberRepository.findByUserId(userid);
+        Optional<MemberEntity> LoginUser = memberRepository.findById(email);
                         
-        if (LoginUser == null){
-        	log.info("로그인 실패 ------> " + userid);
+        if (!LoginUser.isPresent()){
+        	log.info("로그인 실패 ------> " + email);
             throw new UsernameNotFoundException("User not authorized.");
         }
+        
         return User.builder()        		
-        		.username(LoginUser.getUserId())
-        		.password(LoginUser.getPassword())
-        		.roles(LoginUser.getAuthority())
+        		.username(LoginUser.get().getEmail())
+        		.password(LoginUser.get().getPassword())
+        		.roles(LoginUser.get().getAuthority())
         		.build();
     }
 

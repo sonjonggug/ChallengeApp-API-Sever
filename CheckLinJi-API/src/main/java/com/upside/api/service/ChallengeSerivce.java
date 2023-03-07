@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.upside.api.dto.ChallengeDto;
-import com.upside.api.dto.MemberDto;
+import com.upside.api.dto.ChallengeSubmissionDto;
 import com.upside.api.entity.ChallengeEntity;
 import com.upside.api.entity.ChallengeSubmissionEntity;
 import com.upside.api.entity.MemberEntity;
@@ -24,7 +24,6 @@ import com.upside.api.repository.MemberRepository;
 import com.upside.api.repository.UserChallengeRepository;
 import com.upside.api.util.Constants;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -104,39 +103,38 @@ public class ChallengeSerivce {
 	}
 	
 	/**
-	 * 첼린지 가입
+	 * 첼린지 참가
 	 * @param memberDto
 	 * @param challengeDto
 	 * @return
 	 */
 	@Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
-	public Map<String, String> joinChallenge (String challengeName , String userId) {
+	public Map<String, String> joinChallenge (String challengeName , String email) {
 		Map<String, String> result = new HashMap<String, String>();
 		
-		log.info("첼린지 가입 ------> " + "Start");
+		log.info("첼린지 참가 ------> " + "Start");
 		
 		
-		boolean existsChallenge = challengeRepository.findById(challengeName).isPresent();
+		 Optional<ChallengeEntity> existsChallenge = challengeRepository.findById(challengeName);
 		
-		boolean existsMember = memberRepository.findById(userId).isPresent();
+		 Optional<MemberEntity> existsMember = memberRepository.findById(email);
 				
 		
-		if(existsChallenge== false || existsMember== false) {
-			 log.info("첼린지 가입 ------> " + "첼린지 혹은 아이디가 존재하지 않습니다.");
+		if(!existsChallenge.isPresent() || !existsMember.isPresent()) {
+			 log.info("첼린지 참가 ------> " + "첼린지 혹은 이메일이 존재하지 않습니다.");
              result.put("HttpStatus","1.00");		
-     		 result.put("Msg","첼린지 혹은 아이디가 존재하지 않습니다.");
+     		 result.put("Msg","첼린지 혹은 이메일이 존재하지 않습니다.");
      	   return result ;
 		}				
 		
-		 ChallengeEntity challenge =  ChallengeEntity.builder().challengeName(challengeName).build();
+		 ChallengeEntity challenge =  existsChallenge.get();
 						 
-		 MemberEntity member =  MemberEntity.builder().userId(userId).build();
+		 MemberEntity member =  existsMember.get();
 		 
-		 boolean  exsistUserChallenge = userChallengeRepository.findByMemberEntityAndChallengeEntity(member,challenge).isPresent();
-		 		 
-		 
-		 if(exsistUserChallenge == true) {
-			 log.info("첼린지 가입 ------> " + "이미 참여하였습니다.");
+		 boolean exsistUserChallenge = userChallengeRepository.findByMemberEntityAndChallengeEntity(member,challenge).isPresent();
+		 		 		 
+		 if(exsistUserChallenge) {
+			 log.info("첼린지 참가 ------> " + "이미 참여하였습니다.");
              result.put("HttpStatus","1.00");		
      		 result.put("Msg","이미 참여하였습니다.");
      	   return result ;
@@ -151,10 +149,10 @@ public class ChallengeSerivce {
 		 
 		 	userChallengeRepository.save(userChallenge);
 		 		 
-	         log.info("첼린지 가입 ------> " + Constants.SUCCESS);
+	         log.info("첼린지 참가 ------> " + Constants.SUCCESS);
 	         result.put("HttpStatus","2.00");		
 			 result.put("Msg",Constants.SUCCESS);	       
-			 log.info("첼린지 가입 ------> " + "End");
+			 log.info("첼린지 참가 ------> " + "End");
 		  return result ;				 	    		   
 }
 	
@@ -165,50 +163,49 @@ public class ChallengeSerivce {
 	 * @return
 	 */
 	@Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
-	public Map<String, String> submitChallenge (String challengeName , String userId) {
+	public Map<String, String> submitChallenge (ChallengeSubmissionDto submissonDto) {
 		Map<String, String> result = new HashMap<String, String>();
 		
-		log.info("첼린지 제출 ------> " + "Start");
+	    log.info("첼린지 제출 ------> " + "Start");
+	
+		Optional<ChallengeEntity> existsChallenge = challengeRepository.findById(submissonDto.getChallengeName());
 		
-		boolean existsChallenge = challengeRepository.findById(challengeName).isPresent();
+		Optional<MemberEntity> existsMember = memberRepository.findById(submissonDto.getEmail());
+						
+		if(!existsChallenge.isPresent() || !existsMember.isPresent()) {
+			 log.info("첼린지 참가 ------> " + "첼린지 혹은 이메일이 존재하지 않습니다.");
+            result.put("HttpStatus","1.00");		
+    		 result.put("Msg","첼린지 혹은 이메일이 존재하지 않습니다.");
+    	   return result ;
+		 }				
 		
-		boolean existsMember = memberRepository.findById(userId).isPresent();
-				
-		
-		if(existsChallenge== false || existsMember== false) {
-			 log.info("첼린지 제출 ------> " + "첼린지 혹은 아이디가 존재하지 않습니다.");
-             result.put("HttpStatus","1.00");		
-     		 result.put("Msg","첼린지 혹은 아이디가 존재하지 않습니다.");
-     	   return result ;
-		}				
-		
-		 	ChallengeEntity challenge =  ChallengeEntity.builder().challengeName(challengeName).build();
+		 ChallengeEntity challenge =  existsChallenge.get();
 						 
-		 	MemberEntity member =  MemberEntity.builder().userId(userId).build();
+		 MemberEntity member =  existsMember.get();
 		
-		 	Optional<UserChallengeEntity>  exsistUserChallenge = userChallengeRepository.findByMemberEntityAndChallengeEntity(member,challenge);
-		 	 
-		 	 if(exsistUserChallenge.isPresent() == false) {
-		 		 log.info("첼린지 제출 ------> " + "첼린지에 참여하고 계시지 않습니다.");
-	             result.put("HttpStatus","1.00");		
-	     		 result.put("Msg","첼린지에 참여하고 계시지 않습니다.");
-	     	   return result ; 
-		 	 }
-		 	 		 	
-		 	UserChallengeEntity userChallenge = exsistUserChallenge.get();		 			 	
-		 	
-		 	boolean submitYn = challengeSubmissionRepository.findByUserChallengeAndSubmissionTime(userChallenge, LocalDate.now()).isPresent();
-		 	 
-		 	if(submitYn == true) {
-		 		 log.info("첼린지 제출 ------> " + "오늘은 이미 제출이 완료되었습니다.");
-	             result.put("HttpStatus","1.00");		
-	     		 result.put("Msg","이미 제출이 완료되었습니다.");
-	     	   return result ; 
+	 	Optional<UserChallengeEntity>  exsistUserChallenge = userChallengeRepository.findByMemberEntityAndChallengeEntity(member,challenge);
+	 	 
+	 	 if(!exsistUserChallenge.isPresent()) {
+	 		 log.info("첼린지 제출 ------> " + "첼린지에 참여하고 계시지 않습니다.");
+             result.put("HttpStatus","1.00");		
+     		 result.put("Msg","첼린지에 참여하고 계시지 않습니다.");
+     	   return result ; 
+	 	 }
+	 	 		 	
+	 	UserChallengeEntity userChallenge = exsistUserChallenge.get();		 			 	
+	 	
+	 	boolean submitYn = challengeSubmissionRepository.findByUserChallengeAndSubmissionTime(userChallenge, LocalDate.now()).isPresent();
+	 	 
+	 	if(submitYn) {
+	 		 log.info("첼린지 제출 ------> " + "오늘은 이미 제출이 완료되었습니다.");
+             result.put("HttpStatus","1.00");		
+     		 result.put("Msg","오늘은 이미 제출이 완료되었습니다.");
+     	   return result ; 
 		 	}
 		 			 			 			 			 			
 		 	ChallengeSubmissionEntity challengeSubmission = ChallengeSubmissionEntity.builder()
 				   											.submissionTime(LocalDate.now()) // 제출 일시
-				   											.submissionText(true) // 제출 결과
+				   											.submissionText(submissonDto.getSubmissionText()) // 제출 결과
 				   											.userChallenge(userChallenge) // 유저 첼린지 ID 
 				   											.build();
 	        challengeSubmissionRepository.save(challengeSubmission);
@@ -216,8 +213,23 @@ public class ChallengeSerivce {
 	        
 	        log.info("첼린지 제출 ------> " + Constants.SUCCESS);
 	        result.put("HttpStatus","2.00");		
-			result.put("Msg",Constants.SUCCESS);	       
+			result.put("Msg","첼린지 제출이 완료되었습니다.");	       
 			log.info("첼린지 제출 ------> " + "End");
+	        
+	    return result ;			    		   
+	}
+	
+	
+	/**
+	 * 첼린지 완료
+	 * @param challengeDTO
+	 * @return
+	 */
+	@Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
+	public Map<String, String> completedChallenge (String challengeName , String email) {
+		Map<String, String> result = new HashMap<String, String>();
+		
+		log.info("첼린지 완료 ------> " + "Start");				
 	        
 	    return result ;			    		   
 	}

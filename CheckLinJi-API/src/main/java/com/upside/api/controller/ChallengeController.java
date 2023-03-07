@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.upside.api.dto.ChallengeDto;
+import com.upside.api.dto.ChallengeSubmissionDto;
 import com.upside.api.dto.MemberDto;
 import com.upside.api.dto.MessageDto;
 import com.upside.api.dto.UserChallengeDto;
@@ -52,7 +53,7 @@ public class ChallengeController {
 	public ResponseEntity<MessageDto> joinChallenge (@RequestBody UserChallengeDto userChallengeDto) {
 			
 		MessageDto message = new MessageDto();		
-		Map<String, String> result = challengeSerivce.joinChallenge(userChallengeDto.getChallengeName() , userChallengeDto.getUserId());
+		Map<String, String> result = challengeSerivce.joinChallenge(userChallengeDto.getChallengeName() , userChallengeDto.getEmail());
 				
 		if (result.get("HttpStatus").equals("2.00")) { // 성공
 			message.setMsg(result.get("Msg"));
@@ -67,10 +68,10 @@ public class ChallengeController {
 	}
 	
 	@PostMapping("/submit") // 첼린지 제출
-	public ResponseEntity<MessageDto> submitChallenge (@RequestBody  UserChallengeDto userChallengeDto) {
+	public ResponseEntity<MessageDto> submitChallenge (@RequestBody  ChallengeSubmissionDto submissonDto) {
 			
 		MessageDto message = new MessageDto();		
-		Map<String, String> result = challengeSerivce.submitChallenge(userChallengeDto.getChallengeName() , userChallengeDto.getUserId());
+		Map<String, String> result = challengeSerivce.submitChallenge(submissonDto);
 				
 		if (result.get("HttpStatus").equals("2.00")) { // 성공
 			message.setMsg(result.get("Msg"));

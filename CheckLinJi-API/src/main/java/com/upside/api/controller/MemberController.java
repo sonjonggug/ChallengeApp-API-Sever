@@ -2,6 +2,7 @@ package com.upside.api.controller;
 
 
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
@@ -46,19 +47,24 @@ public class MemberController {
 	
 	@PostMapping("/validateDuplicated")
 	public ResponseEntity<MessageDto> validateDuplicated (@RequestBody MemberDto memberDto) {
-			
-		Map<String, String> result = memberService.signUp(memberDto);
 		MessageDto message = new MessageDto();
+		Map<String , String> result = new HashMap<String, String>();
 		
-		if (result.get("HttpStatus").equals("2.00")) { // 성공
-			message.setMsg(result.get("Msg"));
-			message.setStatusCode(result.get("HttpStatus"));						
-			return new ResponseEntity<>(message,HttpStatus.OK);					
-		} else {			
-			message.setMsg(result.get("Msg"));
-			message.setStatusCode(result.get("HttpStatus"));
-			return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST);
-		} 
+		if(memberDto.getEmail() != null) {
+			 result = memberService.validateDuplicatedEmail(memberDto.getEmail());
+			 message.setStatusCode("HttpStatus");
+		 	 message.setMsg(result.get("Msg"));
+			return new ResponseEntity<>(message,HttpStatus.OK); 
+		}
+		
+		if(memberDto.getNickName() != null) {
+			 result = memberService.validateDuplicatedNickName(memberDto.getNickName());
+			 message.setStatusCode("HttpStatus");
+		 	 message.setMsg(result.get("Msg"));
+			return new ResponseEntity<>(message,HttpStatus.OK); 
+		}
+				
+		return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST);		
 					
 	}
 	
@@ -80,7 +86,7 @@ public class MemberController {
 		} 					
 	}
 	
-	@PatchMapping
+	@PostMapping("/update")
 	public ResponseEntity<MessageDto> updateMember(@RequestBody MemberDto memberDto) {
 		
 		 Map<String, String> result = memberService.updateMember(memberDto);
@@ -98,10 +104,10 @@ public class MemberController {
 		 }		
 	}
 	
-	@DeleteMapping
+	@PostMapping("/delete")
 	public ResponseEntity<MessageDto> deleteMember(@RequestBody MemberDto memberDto) {
 		
-		Map<String, String> result = memberService.deleteMember(memberDto.getUserId());
+		Map<String, String> result = memberService.deleteMember(memberDto.getEmail());
 		 
 		 MessageDto message = new MessageDto();
 		
@@ -128,7 +134,7 @@ public class MemberController {
 		 
 		 if(result.get("HttpStatus").equals("2.00")) {			 		 
 //			 headers.add("Authorization", result.get("Header"));
-			 message.setUserId(result.get("UserId"));
+			 message.setUserEmail(result.get("UserEmail"));
 			 message.setMsg(result.get("Msg"));
 			 message.setToKen(result.get("Token"));
 			 message.setRefreshToken(result.get("RefreshToken"));
@@ -150,7 +156,7 @@ public class MemberController {
 		 MessageDto message = new MessageDto();
 		 
 		 if(result.get("HttpStatus").equals("2.00")) {			 		 			 
-			 message.setUserId(result.get("UserId"));
+			 message.setUserEmail(result.get("UserEmail"));
 			 message.setMsg(result.get("Msg"));
 			 message.setToKen(result.get("Token"));
 			 message.setRefreshToken(result.get("RefreshToken"));

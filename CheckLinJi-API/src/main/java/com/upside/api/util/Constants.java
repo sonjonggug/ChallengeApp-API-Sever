@@ -23,9 +23,9 @@ public class Constants {
 public static final String SUCCESS = "정상적으로 처리가 완료되었습니다.";
 public static final String FAIL = "처리가 완료되지않았습니다.";
 public static final String NOT_EXIST_PARAMETER = "입력값이 존재하지않습니다.";
-public static final String NOT_EXIST_ID = "존재하지않는 아이디입니다.";
-public static final String DUPLICATE_ID = "중복된 아이디 입니다.";
-public static final String INBALID_ID_PASSWORD = "아이디 혹은 패스워드가 올바르지않습니다";
+public static final String NOT_EXIST_EMAIL = "존재하지않는 이메일입니다.";
+public static final String DUPLICATE_EMAIL = "중복된 이메일 입니다.";
+public static final String INBALID_EMAIL_PASSWORD = "이메일 혹은 패스워드가 올바르지않습니다";
 public static final String EXPIRATION_TOKEN = "만료되었거나 올바르지 않은 토큰입니다.";
 public static final String INBALID_TOKEN = "올바르지 않은 토큰입니다.";
 }

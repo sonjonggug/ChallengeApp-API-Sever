@@ -34,7 +34,7 @@ public class UserChallengeEntity { // 사용자가 참여한 첼린지 정보를
  private Long userChallengeId;
  
  @ManyToOne(fetch = FetchType.LAZY) // Challenge 입장에선 Member와 다대일 관계이므로 @ManyToOne이 됩니다.
- @JoinColumn(name = "user_id") // 외래 키를 매핑할 때 사용합니다. name 속성에는 매핑 할 외래 키 이름을 지정합니다.
+ @JoinColumn(name = "email") // 외래 키를 매핑할 때 사용합니다. name 속성에는 매핑 할 외래 키 이름을 지정합니다.
  private MemberEntity memberEntity;
 
  @ManyToOne(fetch = FetchType.LAZY , optional = true) // optional = 널값 허용 

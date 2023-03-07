@@ -39,13 +39,13 @@ public class ChallengeSubmissionEntity { // ChallengeSubmission 테이블: 사�
 	 @Column(nullable = false) // 제출 일시
 	 private LocalDate submissionTime;
 
-	 @Column(nullable = false) // 제출 결과
-	 private boolean  submissionText; 
+	 @Column(nullable = true) // 내용
+	 private String  submissionText; 
  
 
 
 @Builder
-public ChallengeSubmissionEntity(UserChallengeEntity userChallenge , LocalDate submissionTime , boolean submissionText) {		
+public ChallengeSubmissionEntity(UserChallengeEntity userChallenge , LocalDate submissionTime , String submissionText) {		
 	super();
 	this.userChallenge = userChallenge;	
 	this.submissionTime = submissionTime;

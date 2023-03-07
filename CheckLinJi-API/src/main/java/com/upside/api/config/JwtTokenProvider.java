@@ -44,8 +44,8 @@ public class JwtTokenProvider {
      * @param email
      * @return
      */
-    public String createToken(String userId) {
-        Claims claims = Jwts.claims().setSubject(userId); // 토큰의 키가 되는 Subject를 중복되지 않는 고유한 값인 userId 로 지정한다.
+    public String createToken(String email) {
+        Claims claims = Jwts.claims().setSubject(email); // 토큰의 키가 되는 Subject를 중복되지 않는 고유한 값인 Email 로 지정한다.
         Date now = new Date();
 
         return Jwts.builder()
@@ -75,7 +75,7 @@ public class JwtTokenProvider {
      * @return
      */
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(getUserId(token));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(getEmail(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
     
@@ -84,7 +84,7 @@ public class JwtTokenProvider {
      * @param token
      * @return
      */
-    public String getUserId(String token) {
+    public String getEmail(String token) {
         try {
             return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject(); // 지정한 Secret Key를 통해 서명된 JWT를 해석하여 Subject를 끌고와 리턴하여 이를 통해 인증 객체를 끌고올 수 있다.
         } catch(ExpiredJwtException e) {

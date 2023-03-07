@@ -9,7 +9,7 @@ public class UserChallengeDto { // UserChallenge 테이블: 사용자가 참여�
 
  
  private String challengeName; 
- private String userId;
+ private String email;
  private LocalDateTime registrationTime;
  private boolean completed;
  

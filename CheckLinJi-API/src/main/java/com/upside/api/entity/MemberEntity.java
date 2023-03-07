@@ -22,7 +22,7 @@ public class MemberEntity { // User 테이블: 사용자 정보를 저장하는 
 
  @Id
 // @GeneratedValue(strategy = GenerationType.IDENTITY)
- private String userId;
+ private String email;
  
  @Column(nullable = false , name = "password")
  private String password;
@@ -32,13 +32,7 @@ public class MemberEntity { // User 테이블: 사용자 정보를 저장하는 
  
  @Column(nullable = false , name = "nickName" ,  unique = true )
  private String nickName;
- 
- @Column(nullable = false , name = "age")
- private int age;
- 
- @Column(nullable = false , name = "email" ,  unique = true )
- private String email;  
- 
+  
  @Column(nullable = false , name = "birth")
  private String birth;
  
@@ -50,7 +44,7 @@ public class MemberEntity { // User 테이블: 사용자 정보를 저장하는 
  
  @Column(nullable = false , name = "loginDate")
  private String loginDate;
-
+ 
  @Column(nullable = false , name = "authority")
  private String authority;
  
@@ -59,19 +53,18 @@ public class MemberEntity { // User 테이블: 사용자 정보를 저장하는 
  
 
 @Builder
-public MemberEntity(String userId, String password, String name, String nickName, int age, String email, String birth, String sex,
+public MemberEntity(String email, String password, String name, String nickName, String birth, String sex,
 		String joinDate, String loginDate , String authority) {
 	super();
-	this.userId = userId;
+	this.email = email;
 	this.password = password;
 	this.name = name;
-	this.nickName = nickName;
-	this.age = age;
-	this.email = email;
+	this.nickName = nickName;		
 	this.birth = birth;
 	this.sex = sex;
 	this.joinDate = joinDate;
 	this.loginDate = loginDate;
 	this.authority = authority;
+	
 }
 }

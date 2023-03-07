@@ -4,23 +4,26 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.upside.api.dto.MemberDto;
 import com.upside.api.dto.MessageDto;
 import com.upside.api.service.KaKaoOAuthSerivce;
 import com.upside.api.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
 
-@Controller
-//@RestController
+
+@RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/social/login")
+@RequestMapping("/api/social")
 public class SocialController {
     
     private final KaKaoOAuthSerivce oAuthSerivce;
@@ -35,7 +38,31 @@ public class SocialController {
     
     
     
-    @ResponseBody
+    @PostMapping("/login")
+	public ResponseEntity<MessageDto> login (@RequestBody MemberDto memberDto) {
+    	
+    	MessageDto message = new MessageDto();			
+    	Map<String, String> result = memberService.validateEmail(memberDto.getEmail());
+    	
+    	if(result.get("HttpStatus").equals("1.00")) { // 신규 회원일 경우
+   			message.setStatusCode(result.get("HttpStatus"));
+   			message.setUserEmail(result.get("UserEmail"));
+   			message.setMsg(result.get("Msg"));
+   			
+   		} else { // 로그인    			
+   			message.setStatusCode("2.00");
+   			message.setUserEmail(result.get("UserEmail"));
+   			message.setToKen(result.get("Token"));
+   			message.setRefreshToken(result.get("RefreshToken"));
+   			message.setMsg(result.get("Msg"));
+   			
+   		}
+    	    			
+    	return new ResponseEntity<>(message,HttpStatus.OK);
+	}
+    
+    
+    
     // 인증 완료 후 리다이렉트 페이지
     @GetMapping("/kakao")
    	public ResponseEntity<MessageDto> redirectKakao (@RequestParam String code)  {							 
@@ -61,7 +88,7 @@ public class SocialController {
    			return new ResponseEntity<>(message,HttpStatus.OK);
    		} else { // 로그인    			
    			message.setStatusCode("2.00");
-   			message.setUserEmail(result.get("UserId"));
+   			message.setUserEmail(result.get("UserEmail"));
    			message.setToKen(result.get("Token"));
    			message.setRefreshToken(result.get("RefreshToken"));
    			return new ResponseEntity<>(message,HttpStatus.OK);
@@ -69,7 +96,7 @@ public class SocialController {
    		    		    		   		    		 
    	}
     
-    @ResponseBody
+    
     // 인증 완료 후 리다이렉트 페이지
     @GetMapping("/google")
    	public ResponseEntity<MessageDto> redirectGoogle (@RequestParam String Email)  {							 
@@ -84,7 +111,7 @@ public class SocialController {
    			return new ResponseEntity<>(message,HttpStatus.OK);
    		} else { // 로그인    			
    			message.setStatusCode("2.00");
-   			message.setUserEmail(result.get("UserId"));
+   			message.setUserEmail(result.get("UserEmail"));
    			message.setToKen(result.get("Token"));
    			message.setRefreshToken(result.get("RefreshToken"));
    			return new ResponseEntity<>(message,HttpStatus.OK);
