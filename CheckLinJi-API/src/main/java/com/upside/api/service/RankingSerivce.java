@@ -2,9 +2,9 @@ package com.upside.api.service;
 
 
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.upside.api.dto.MemberDto;
 import com.upside.api.mapper.MemberMapper;
+import com.upside.api.repository.MemberRepository;
 import com.upside.api.util.Constants;
 
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,8 @@ public class RankingSerivce {
 		
 	
 	private final MemberMapper memberMapper ;
+	
+	private final MemberRepository memberRepository ;
 	 	 
 	
 	
@@ -39,38 +42,77 @@ public class RankingSerivce {
 	  */
 	public Map<String, String> missionCompletedCnt (MemberDto memberDto) {
 		Map<String, String> result = new HashMap<String, String>();
-		
-		log.info("미션 성공 총 횟수 (월) ------> " + "Start");
-		
+						
 		 // 현재 날짜와 시간을 LocalDateTime 객체로 가져옵니다.
         LocalDateTime now = LocalDateTime.now();
         
         // 현재 년도와 월을 가져옵니다.
         int year = now.getYear();
         int month = now.getMonthValue();
+                                                 		
+        Map<String, String> data = new HashMap<String, String>();
         
+        data.put("year", String.valueOf(year));
+        data.put("month", String.valueOf(month));
+        data.put("email", memberDto.getEmail());
         
-        // YearMonth 객체를 생성하여 해당 월의 날짜 범위를 가져옵니다.
-        YearMonth yearMonth = YearMonth.of(year, month);
-        int daysInMonth = yearMonth.lengthOfMonth();
+        result = memberMapper.missionCompletedCnt(data);
         
-        // 월초와 월말의 날짜를 LocalDateTime 객체로 생성합니다.
-        LocalDateTime startOfMonth = LocalDateTime.of(year, month, 1, 0, 0, 0);
-        LocalDateTime endOfMonth = LocalDateTime.of(year, month, daysInMonth, 23, 59, 59);
+        if (String.valueOf(result.get("own")) == null || String.valueOf(result.get("own")).equals("0")) {
+        	result.put("HttpStatus","1.00");		
+    		result.put("Msg",Constants.FAIL);
+    		return result ;
+        }
         
-        // 월초부터 월말까지의 날짜 범위를 생성합니다.
-        LocalDate startDate = startOfMonth.toLocalDate();
-        LocalDate endDate = endOfMonth.toLocalDate();
-		
-        result = memberMapper.missionCompletedCnt(memberDto);
-        
-        System.out.println(result);
-        
-        log.info("미션 성공 총 횟수 (월) ------> " + Constants.SUCCESS);
         result.put("HttpStatus","2.00");		
 		result.put("Msg",Constants.SUCCESS);
-	
+		
+		log.info("미션 성공 총 횟수 (월) ------> " + Constants.SUCCESS);
+		
 	    return result ;			    		   
 	}
+	
+	/**
+	  * 실시간 랭킹
+	  * @param memberDto
+	  * @return
+	  */
+	public Map<String, Object> missionRanking (MemberDto memberDto) {
 		
+	   Map<String, Object> result = new HashMap<String, Object>();
+	   
+	   
+              		
+       Map<String, String> data = new HashMap<String, String>();              
+       
+       data.put("email", memberDto.getEmail());
+       
+       ArrayList<Map<String, Object>> missionRankingTop = memberMapper.missionRankingTop(data);
+       
+       Map<String, String> missionRankingOwn = memberMapper.missionRankingOwn(data);
+                     
+       if (missionRankingTop.get(0) == null ) {
+    	    log.info("실시간 랭킹 ------> " + "TOP 3 조회 실패");
+    	    result.put("HttpStatus","1.00");		
+   			result.put("Msg","TOP 3 조회 실패");
+   		 return result ;
+       }
+       
+       if (missionRankingOwn == null ) {
+    	    log.info("실시간 랭킹 ------> " + "참여중이 아닙니다.");
+   	    	result.put("HttpStatus","1.01");		
+  			result.put("Msg","참여중이 아닙니다.");
+  			result.put("missionRankingTop",missionRankingTop);
+  		 return result ;
+       }
+       
+       result.put("HttpStatus","2.00");		
+	   result.put("Msg",Constants.SUCCESS);
+	   result.put("missionRankingTop",missionRankingTop);
+	   result.put("missionRankingOwn",missionRankingOwn);
+		
+		log.info("실시간 랭킹 ------> " + Constants.SUCCESS);
+		
+	    return result ;			    		   
+	}
 }
