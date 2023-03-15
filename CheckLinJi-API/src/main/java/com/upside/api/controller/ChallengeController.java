@@ -17,7 +17,7 @@ import com.upside.api.dto.ChallengeSubmissionDto;
 import com.upside.api.dto.MemberDto;
 import com.upside.api.dto.MessageDto;
 import com.upside.api.dto.UserChallengeDto;
-import com.upside.api.service.ChallengeSerivce;
+import com.upside.api.service.ChallengeService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/challenge")
 public class ChallengeController {
 	
-	private final ChallengeSerivce challengeSerivce ;
+	private final ChallengeService challengeSerivce ;
 				
 	
 	

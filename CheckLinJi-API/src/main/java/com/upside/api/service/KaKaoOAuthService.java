@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j // 로깅에 대한 추상 레이어를 제공하는 인터페이스의 모음.
 @Service
-public class KaKaoOAuthSerivce {
+public class KaKaoOAuthService {
 
 	
 	 @Value("${kakao.client_id}") 

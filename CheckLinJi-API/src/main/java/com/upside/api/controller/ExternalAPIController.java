@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.upside.api.service.WiseSayingAPISerivce;
+import com.upside.api.service.WiseSayingAPIService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/external")
 public class ExternalAPIController {
 	
-	private final WiseSayingAPISerivce wiseSayingAPISerivce;
+	private final WiseSayingAPIService wiseSayingAPISerivce;
 	
 		
 	@GetMapping 						  	

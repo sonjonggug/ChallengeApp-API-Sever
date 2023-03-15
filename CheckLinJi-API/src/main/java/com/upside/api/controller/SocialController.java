@@ -15,7 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.upside.api.dto.MemberDto;
 import com.upside.api.dto.MessageDto;
-import com.upside.api.service.KaKaoOAuthSerivce;
+import com.upside.api.service.KaKaoOAuthService;
 import com.upside.api.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/social")
 public class SocialController {
     
-    private final KaKaoOAuthSerivce oAuthSerivce;
+    private final KaKaoOAuthService oAuthSerivce;
     private final MemberService memberService;    
 
     // 카카오 로그인 페이지 테스트

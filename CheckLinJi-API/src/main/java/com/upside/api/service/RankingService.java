@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j // 로깅에 대한 추상 레이어를 제공하는 인터페이스의 모음.
 @Service
-public class RankingSerivce {
+public class RankingService {
 		
 	
 	private final MemberMapper memberMapper ;
@@ -99,8 +99,8 @@ public class RankingSerivce {
        }
        
        if (missionRankingOwn == null ) {
-    	    log.info("실시간 랭킹 ------> " + "참여중이 아닙니다.");
-   	    	result.put("HttpStatus","1.01");		
+    	    log.info("실시간 랭킹 ------> " + "해당 사용자 참여중 아닐땐 TOP3 만");
+   	    	result.put("HttpStatus","2.01");		
   			result.put("Msg","참여중이 아닙니다.");
   			result.put("missionRankingTop",missionRankingTop);
   		 return result ;

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.upside.api.dto.MemberDto;
 import com.upside.api.dto.RankingMessageDto;
-import com.upside.api.service.RankingSerivce;
+import com.upside.api.service.RankingService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/mission")
 public class RankingController {
 	
-	private final RankingSerivce rankingSerivce ;
+	private final RankingService rankingSerivce ;
 				
 	
 	
@@ -66,20 +66,17 @@ public class RankingController {
 			message.setMsg((String) result.get("Msg"));
 			message.setStatusCode((String) result.get("HttpStatus"));
 			message.setUserList(result.get("missionRankingTop"));
-			message.setOwnList(result.get("missionRankingOwn"));		
-			
-			return new ResponseEntity<>(message,HttpStatus.OK);					
-		} else if (result.get("HttpStatus").equals("1.01")) { // 본인이 참여중이 아닐때			
+			message.setOwnList(result.get("missionRankingOwn"));													
+		} else if (result.get("HttpStatus").equals("2.01")) { // 본인이 참여중이 아닐때			
 			message.setMsg((String) result.get("Msg"));
 			message.setStatusCode((String) result.get("HttpStatus"));
-			message.setUserList(result.get("missionRankingTop"));
-			return new ResponseEntity<>(message,HttpStatus.OK);
+			message.setUserList(result.get("missionRankingTop"));			
 		} else {			
 			message.setMsg((String) result.get("Msg"));
-			message.setStatusCode((String) result.get("HttpStatus"));
-			return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST);
-		} 
-					
+			message.setStatusCode((String) result.get("HttpStatus"));			
+		}
+		
+		return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST);		
 	}
 	
 }
