@@ -2,6 +2,7 @@ package com.upside.api.controller;
 
 
 
+import java.io.IOException;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.upside.api.dto.ChallengeDto;
 import com.upside.api.dto.ChallengeSubmissionDto;
@@ -68,10 +70,10 @@ public class ChallengeController {
 	}
 	
 	@PostMapping("/submit") // 첼린지 제출
-	public ResponseEntity<MessageDto> submitChallenge (@RequestBody  ChallengeSubmissionDto submissonDto) {
+	public ResponseEntity<MessageDto> submitChallenge (@RequestParam("file") MultipartFile file ,  ChallengeSubmissionDto submissonDto) throws IOException {
 			
 		MessageDto message = new MessageDto();		
-		Map<String, String> result = challengeSerivce.submitChallenge(submissonDto);
+		Map<String, String> result = challengeSerivce.submitChallenge(file , submissonDto);
 				
 		if (result.get("HttpStatus").equals("2.00")) { // 성공
 			message.setMsg(result.get("Msg"));

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.upside.api.dto.ChallengeSubmissionDto;
 import com.upside.api.dto.FileUploadDto;
 import com.upside.api.service.FileService;
 
@@ -85,6 +86,8 @@ public class FileUploadController {
 				return ResponseEntity.ok("실패");
 			}
 	    }
+	 	 
+	 
 	}
 	 
 

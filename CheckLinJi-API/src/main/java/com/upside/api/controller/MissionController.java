@@ -2,6 +2,7 @@ package com.upside.api.controller;
 
 
 
+import java.time.LocalDate;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -9,20 +10,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.upside.api.dto.ChallengeSubmissionDto;
 import com.upside.api.dto.MemberDto;
 import com.upside.api.dto.RankingMessageDto;
-import com.upside.api.service.RankingService;
+import com.upside.api.service.MissionService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/mission")
-public class RankingController {
+public class MissionController {
 	
-	private final RankingService rankingSerivce ;
+	private final MissionService rankingSerivce ;
 				
 	
 	
@@ -79,4 +82,16 @@ public class RankingController {
 		return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST);		
 	}
 	
+	/**
+	 * 
+	 * @param challengeSubmissionDto
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping("/myAuth")
+    public ResponseEntity<String> myAuth(@RequestBody ChallengeSubmissionDto challengeSubmissionDto) throws Exception {
+	 	  	
+	  	
+	 return null ; 
+ }
 }

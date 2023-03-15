@@ -7,10 +7,15 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.upside.api.dto.FileUploadDto;
 import com.upside.api.dto.MemberDto;
+import com.upside.api.entity.FileUploadEntity;
+import com.upside.api.entity.MemberEntity;
 import com.upside.api.mapper.MemberMapper;
 import com.upside.api.repository.MemberRepository;
 import com.upside.api.util.Constants;
@@ -24,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j // 로깅에 대한 추상 레이어를 제공하는 인터페이스의 모음.
 @Service
-public class RankingService {
+public class MissionService {
 		
 	
 	private final MemberMapper memberMapper ;
@@ -114,5 +119,15 @@ public class RankingService {
 		log.info("실시간 랭킹 ------> " + Constants.SUCCESS);
 		
 	    return result ;			    		   
+	}
+	
+	@Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
+	public Map<String, String> myAuth(FileUploadDto fileUploadDto) {
+		
+		Map<String, String> result = new HashMap<String, String>();
+		
+		     
+		 
+	  return result ;				 	    			    		   
 	}
 }

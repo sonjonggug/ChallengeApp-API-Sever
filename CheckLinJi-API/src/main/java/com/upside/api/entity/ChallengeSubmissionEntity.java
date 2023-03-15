@@ -41,15 +41,19 @@ public class ChallengeSubmissionEntity { // ChallengeSubmission 테이블: 사�
 
 	 @Column(nullable = true) // 내용
 	 private String  submissionText; 
+	 
+	 @Column(nullable = true) // 인증 성공 유무 
+	 private String  submissionCompleted;
  
 
 
 @Builder
-public ChallengeSubmissionEntity(UserChallengeEntity userChallenge , LocalDate submissionTime , String submissionText) {		
+public ChallengeSubmissionEntity(UserChallengeEntity userChallenge , LocalDate submissionTime , String submissionText , String submissionCompleted) {		
 	super();
 	this.userChallenge = userChallenge;	
 	this.submissionTime = submissionTime;
-	this.submissionText = submissionText;	
+	this.submissionText = submissionText;
+	this.submissionCompleted = submissionCompleted;
 
 }
 }

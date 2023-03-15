@@ -2,6 +2,7 @@ package com.upside.api.service;
 
 
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -11,9 +12,12 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.upside.api.dto.ChallengeDto;
 import com.upside.api.dto.ChallengeSubmissionDto;
+import com.upside.api.dto.FileUploadDto;
 import com.upside.api.entity.ChallengeEntity;
 import com.upside.api.entity.ChallengeSubmissionEntity;
 import com.upside.api.entity.MemberEntity;
@@ -39,6 +43,8 @@ public class ChallengeService {
 	 private final UserChallengeRepository userChallengeRepository;
 	 private final MemberRepository memberRepository;
 	 private final ChallengeSubmissionRepository challengeSubmissionRepository;
+	 
+	 private final FileService fileService;
 	 	 
 	
 	
@@ -161,9 +167,10 @@ public class ChallengeService {
 	 * 첼린지 제출
 	 * @param challengeDTO
 	 * @return
+	 * @throws IOException 
 	 */
 	@Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
-	public Map<String, String> submitChallenge (ChallengeSubmissionDto submissonDto) {
+	public Map<String, String> submitChallenge (@RequestParam("file") MultipartFile file , ChallengeSubmissionDto submissonDto) throws IOException {
 		Map<String, String> result = new HashMap<String, String>();
 		
 	    log.info("첼린지 제출 ------> " + "Start");
@@ -183,7 +190,7 @@ public class ChallengeService {
 						 
 		 MemberEntity member =  existsMember.get();
 		
-	 	Optional<UserChallengeEntity>  exsistUserChallenge = userChallengeRepository.findByMemberEntityAndChallengeEntity(member,challenge);
+	 	Optional<UserChallengeEntity>  exsistUserChallenge = userChallengeRepository.findByMemberEntityAndChallengeEntity(member,challenge); // 첼린지 참가를 했는지 확인
 	 	 
 	 	 if(!exsistUserChallenge.isPresent()) {
 	 		 log.info("첼린지 제출 ------> " + "첼린지에 참여하고 계시지 않습니다.");
@@ -202,11 +209,21 @@ public class ChallengeService {
      		 result.put("Msg","오늘은 이미 제출이 완료되었습니다.");
      	   return result ; 
 		 	}
-		 			 			 			 			 			
+		 	
+	 	FileUploadDto fileUploadDto = new FileUploadDto();
+	 	fileUploadDto.setEmail(submissonDto.getEmail());
+	 	fileUploadDto.setUserFeeling(submissonDto.getSubmissionText());
+	 	
+	 	// 파일 업로드 
+	 	Map<String, String> authSubmit = fileService.uploadFile(file, fileUploadDto);
+	 	
+	 	// 파일 업로드 성공시 첼린지 인증 성공
+	 	if(authSubmit.get("HttpStatus").equals("2.00")) {	 			 	
 		 	ChallengeSubmissionEntity challengeSubmission = ChallengeSubmissionEntity.builder()
 				   											.submissionTime(LocalDate.now()) // 제출 일시
 				   											.submissionText(submissonDto.getSubmissionText()) // 제출 결과
 				   											.userChallenge(userChallenge) // 유저 첼린지 ID 
+				   											.submissionCompleted("Y") // 인증 성공 유무
 				   											.build();
 	        challengeSubmissionRepository.save(challengeSubmission);
 	        userChallenge.setCompleted(true);	        	        
@@ -214,9 +231,14 @@ public class ChallengeService {
 	        log.info("첼린지 제출 ------> " + Constants.SUCCESS);
 	        result.put("HttpStatus","2.00");		
 			result.put("Msg","첼린지 제출이 완료되었습니다.");	       
-			log.info("첼린지 제출 ------> " + "End");
-	        
-	    return result ;			    		   
+			log.info("첼린지 제출 ------> " + "End");	        				
+	 	} else {
+	 		 log.info("첼린지 제출 ------> " + Constants.FAIL);
+		        result.put("HttpStatus","1.00");		
+				result.put("Msg",authSubmit.get("Msg"));	       
+				log.info("첼린지 제출 ------> " + "End");				
+	 	}
+	 	return result ;
 	}
 	
 	

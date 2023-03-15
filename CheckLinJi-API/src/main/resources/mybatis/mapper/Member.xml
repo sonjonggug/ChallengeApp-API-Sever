@@ -55,4 +55,21 @@
 			) val 
 			WHERE val.email = #{email} ; 		 
 	</select>
+	
+	<!-- 본인 미션 달력 -->
+	<select id="missionCalendarOwn" parameterType="MemberDto" resultType="java.util.Map" >
+		SELECT 	  EMAIL
+				, CHALLENGE_NAME
+				, SUBMISSION_TEXT 
+				, SUBMISSION_TIME
+				, SUBMISSION_COMPLETED		
+		FROM CHALLENGE_SUBMISSION CS 
+	JOIN USER_CHALLENGE UC 
+	ON UC.USER_CHALLENGE_ID = CS.USER_CHALLENGE_ID
+	WHERE CS.SUBMISSION_TIME LIKE '2023-03%'
+	AND UC.EMAIL = #{email}
+	GROUP BY CS.SUBMISSION_TIME ; 
+	</select>
+		
+	
 </mapper>
