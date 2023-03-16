@@ -2,7 +2,6 @@ package com.upside.api.controller;
 
 
 
-import java.time.LocalDate;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -10,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.upside.api.dto.ChallengeSubmissionDto;
@@ -83,15 +81,55 @@ public class MissionController {
 	}
 	
 	/**
-	 * 
+	 * 본인 미션 달력
 	 * @param challengeSubmissionDto
 	 * @return
 	 * @throws Exception
 	 */
 	@PostMapping("/myAuth")
-    public ResponseEntity<String> myAuth(@RequestBody ChallengeSubmissionDto challengeSubmissionDto) throws Exception {
-	 	  	
+    public ResponseEntity<RankingMessageDto> myAuth(@RequestBody ChallengeSubmissionDto challengeSubmissionDto) throws Exception {
+	 	
+		RankingMessageDto message = new RankingMessageDto();	
+		
+		Map<String, Object > result = rankingSerivce.myAuth(challengeSubmissionDto);
 	  	
-	 return null ; 
- }
+		if (result.get("HttpStatus").equals("2.00")) { // 성공
+			message.setMsg((String) result.get("Msg"));
+			message.setStatusCode((String) result.get("HttpStatus"));
+			message.setUserList(result.get("missionCalendarOwn"));																		
+		} else {			
+			message.setMsg((String) result.get("Msg"));
+			message.setStatusCode((String) result.get("HttpStatus"));			
+		}
+		
+		return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST);		
+	} 
+ 
+	
+	/**
+	 * 본인 미션 상세보기
+	 * @param challengeSubmissionDto
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping("/myAuth/info")
+    public ResponseEntity<RankingMessageDto> myAuthInfo(@RequestBody ChallengeSubmissionDto challengeSubmissionDto) throws Exception {
+	 	
+		RankingMessageDto message = new RankingMessageDto();	
+		
+		Map<String, Object > result = rankingSerivce.myAuthInfo(challengeSubmissionDto);
+	  	
+		if (result.get("HttpStatus").equals("2.00")) { // 성공											
+			    message.setMsg((String) result.get("Msg"));
+				message.setStatusCode((String) result.get("HttpStatus"));
+				message.setUserList(result.get("missionAuthInfo"));
+			    message.setFile((String) result.get("file"));
+			
+		} else {			
+			message.setMsg((String) result.get("Msg"));
+			message.setStatusCode((String) result.get("HttpStatus"));			
+		}
+		
+		return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST);		
+	} 
 }

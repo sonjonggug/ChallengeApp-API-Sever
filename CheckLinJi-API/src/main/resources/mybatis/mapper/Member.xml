@@ -66,10 +66,16 @@
 		FROM CHALLENGE_SUBMISSION CS 
 	JOIN USER_CHALLENGE UC 
 	ON UC.USER_CHALLENGE_ID = CS.USER_CHALLENGE_ID
-	WHERE CS.SUBMISSION_TIME LIKE '2023-03%'
+	WHERE CS.SUBMISSION_TIME LIKE #{date}
 	AND UC.EMAIL = #{email}
 	GROUP BY CS.SUBMISSION_TIME ; 
 	</select>
 		
+	<!-- 본인 미션 상세정보 -->
+	<select id="missionAuthInfo" parameterType="MemberDto" resultType="java.util.Map" >
+		SELECT UPLOAD_DATE , FILE_ROUTE , USER_FEELING  FROM FILE_UPLOAD 
+	where UPLOAD_DATE = #{date}
+	AND EMAIL =  #{email}  
+	</select>
 	
 </mapper>

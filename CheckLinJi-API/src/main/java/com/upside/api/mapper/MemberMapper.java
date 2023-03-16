@@ -9,9 +9,39 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface MemberMapper {
 	
+	
+	/**
+	 * 내 미션 달성 횟수 , 참가자 평균
+	 * @param data
+	 * @return
+	 */
 	HashMap<String,String> missionCompletedCnt (Map<String, String> data);
 	
+	/**
+	 * 실시간 TOP3 랭킹
+	 * @param data
+	 * @return
+	 */
 	ArrayList<Map<String, Object>> missionRankingTop (Map<String, String> data);
-	
+			
+	/**
+	 * 실시간 본인 랭킹
+	 * @param data
+	 * @return
+	 */
 	HashMap<String,String> missionRankingOwn (Map<String, String> data);
+	
+	/**
+	 * 본인 미션 달력 
+	 * @param data
+	 * @return
+	 */
+	ArrayList<Map<String, Object>> missionCalendarOwn (Map<String, String> data);
+	
+	/**
+	 * 본인 미션 상세보기
+	 * @param data
+	 * @return
+	 */
+	HashMap<String,String> missionAuthInfo (Map<String, String> data);
 }

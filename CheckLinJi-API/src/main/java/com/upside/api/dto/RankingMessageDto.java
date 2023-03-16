@@ -11,4 +11,5 @@ public class RankingMessageDto {
  private Object ownList;
  private String msg;
  private String statusCode;
+ private String file;
 }

@@ -3,19 +3,20 @@ package com.upside.api.service;
 
 
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.upside.api.dto.FileUploadDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.upside.api.dto.ChallengeSubmissionDto;
 import com.upside.api.dto.MemberDto;
-import com.upside.api.entity.FileUploadEntity;
-import com.upside.api.entity.MemberEntity;
 import com.upside.api.mapper.MemberMapper;
 import com.upside.api.repository.MemberRepository;
 import com.upside.api.util.Constants;
@@ -35,6 +36,8 @@ public class MissionService {
 	private final MemberMapper memberMapper ;
 	
 	private final MemberRepository memberRepository ;
+	
+	private final FileService fileService ;
 	 	 
 	
 	
@@ -121,13 +124,127 @@ public class MissionService {
 	    return result ;			    		   
 	}
 	
-	@Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
-	public Map<String, String> myAuth(FileUploadDto fileUploadDto) {
+	/**
+	 * 본인 미션 달력
+	 * @param fileUploadDto
+	 * @return
+	 */
+	public Map<String, Object> myAuth(ChallengeSubmissionDto challengeSubmissionDto) {
 		
-		Map<String, String> result = new HashMap<String, String>();
+		log.info("본인 미션 달력 ------> " + "Start");
+		Map<String, Object> result = new HashMap<String, Object>();
 		
-		     
-		 
+		
+        
+        // 현재 년도와 월을 가져옵니다.
+        String year = challengeSubmissionDto.getYear();
+        String month = challengeSubmissionDto.getMonth();                        
+        String date = year+"-"+ month+"%";                                
+        
+        Map<String, String> data = new HashMap<String, String>();
+        
+        data.put("date", date);
+        data.put("email", challengeSubmissionDto.getEmail());
+        
+        try {
+        	ArrayList<Map<String, Object>> missionCalendarOwn = memberMapper.missionCalendarOwn(data);
+        	        	        	
+        	if (missionCalendarOwn.get(0) == null ) {
+        		log.info("본인 미션 달력 ------> " + "참여중이 아니거나 이력이 없습니다.");
+        	    result.put("HttpStatus","1.00");		
+       			result.put("Msg","참여중이 아니거나 이력이 없습니다.");
+       		 return result ;
+           } else {
+        	   	log.info("본인 미션 달력 ------> " + Constants.SUCCESS);
+        	   	result.put("HttpStatus","2.00");		
+      			result.put("Msg",Constants.SUCCESS);
+      			result.put("missionCalendarOwn",missionCalendarOwn);
+           }
+        	
+		} catch (DataAccessException e) {
+			log.info("본인 미션 달력 ------> " + "Data 접근 실패");
+    	    result.put("HttpStatus","1.00");		
+   			result.put("Msg","Data 접근 실패");
+   		 return result ;			
+		}               		 
 	  return result ;				 	    			    		   
 	}
+	
+	/**
+	 * 본인 미션 상세보기
+	 * @param fileUploadDto
+	 * @return
+	 * @throws JsonProcessingException 
+	 * @throws ParseException 
+	 */
+	public Map<String, Object> myAuthInfo(ChallengeSubmissionDto challengeSubmissionDto) throws JsonProcessingException, ParseException {
+		
+		log.info("본인 미션 상세보기 ------> " + "Start");
+		Map<String, Object> result = new HashMap<String, Object>();
+				        
+        
+        // 현재 년도와 월을 가져옵니다.
+        String year = challengeSubmissionDto.getYear();
+        String month = challengeSubmissionDto.getMonth();
+        String day = challengeSubmissionDto.getDay();
+        String date = year+"-"+ month+"-"+day;                                
+        
+        Map<String, String> data = new HashMap<String, String>();
+        
+        data.put("date", date);
+        data.put("email", challengeSubmissionDto.getEmail());
+        
+        try {
+        	Map<String, String> missionAuthInfo = memberMapper.missionAuthInfo(data); // 해당날짜에 해당하는 본인 데이터
+        	        	        	
+        	if (missionAuthInfo == null ) {
+        		log.info("본인 미션 상세보기 ------> " + "참여중이 아니거나 이력이 없습니다.");
+        	    result.put("HttpStatus","1.00");		
+       			result.put("Msg","참여중이 아니거나 이력이 없습니다.");
+       		 return result ;
+       		 
+           } else {
+        	   
+        	    ObjectMapper objectMapper = new ObjectMapper();
+				
+        	    // MAP 객체를 JSON으로 변환
+				String json = objectMapper.writeValueAsString(missionAuthInfo); 
+																					
+				// JSON 문자열을 파싱할 JSONParser 객체 생성
+				JSONParser parser = new JSONParser();
+			
+			    // JSON 문자열을 파싱하여 JSONObject 객체로 변환
+			    JSONObject jsonObject = (JSONObject) parser.parse(json);
+			    			    			    			    
+			    // FILE_ROUTE 키의 값 가져오기
+			    String fileRoute = (String) jsonObject.get("FILE_ROUTE");			    			   
+			    
+			    String file = fileService.myAuthImage(fileRoute);
+        	   
+			    if(file.equals("N")) {
+			    	log.info("본인 미션 상세보기 ------> " + "이미지를 표시할 수 없습니다.");
+			    	missionAuthInfo.remove("FILE_ROUTE"); // 파일 경로는 클라이언트 측에서 알 필요없으므로 삭제
+			    	result.put("HttpStatus","2.00");		
+	      			result.put("Msg","이미지를 표시할 수 없습니다.");
+	      			result.put("missionAuthInfo",missionAuthInfo);
+	      			result.put("file","이미지를 표시할 수 없습니다.");
+	      			
+			    } else {
+	        	   	log.info("본인 미션 상세보기 ------> " + Constants.SUCCESS);
+	        	   	missionAuthInfo.remove("FILE_ROUTE"); // 파일 경로는 클라이언트 측에서 알 필요없으므로 삭제
+	        	   	result.put("HttpStatus","2.00");		
+	      			result.put("Msg",Constants.SUCCESS);
+	      			result.put("missionAuthInfo",missionAuthInfo);
+	      			result.put("file",file);
+			    }
+           }
+		} catch (DataAccessException e) {
+			log.info("본인 미션 상세보기 ------> " + "Data 접근 실패");
+    	    result.put("HttpStatus","1.00");		
+   			result.put("Msg","Data 접근 실패");
+   		 return result ;			
+		}               		 
+	  return result ;				 	    			    		   
+	}
+		
 }

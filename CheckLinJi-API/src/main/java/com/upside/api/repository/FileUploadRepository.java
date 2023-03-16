@@ -14,7 +14,7 @@ import com.upside.api.entity.MemberEntity;
 public interface FileUploadRepository extends JpaRepository<FileUploadEntity, Long> {
 		 
 
-//	Optional<FileUploadEntity> findById (MemberEntity member , String uploadDate);
+
 		
 	Optional<FileUploadEntity> findByMemberEntityAndUploadDate (MemberEntity memberEntity , LocalDate uploadDate);
 }

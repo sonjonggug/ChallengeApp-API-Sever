@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -148,5 +149,34 @@ public class FileService {
 		 
 	  return result ;				 	    			    		   
 	}	
+	
+	/**
+	 * 파일 다운로드 Base64 인코딩 방식
+	 * @param fileUploadDto
+	 * @return
+	 */
+	public String myAuthImage(String fileRoute) {
+		
+		log.info("본인 인증 이미지  ------> " + "Start");
+		
+		
+		String encoded="N";
+		try {		        			
+		 // 파일 경로
+        String filePath = fileRoute ;
+        
+        // 파일을 바이트 배열로 읽어옴
+        byte[] fileContent = Files.readAllBytes(Paths.get(filePath));
+        
+        // Base64 인코딩
+         encoded = Base64.getEncoder().encodeToString(fileContent);
+                        
+		
+		} catch (IOException e) {			
+			encoded = "N";
+			log.info("본인 인증 이미지  ------> " + "실패");
+		}
+		 return encoded ;				 	 	    			    		   
+	}
 	
 	}
