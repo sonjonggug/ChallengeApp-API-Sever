@@ -203,7 +203,7 @@ public class MissionService {
        			result.put("Msg","참여중이 아니거나 이력이 없습니다.");
        		 return result ;
        		 
-           } else {
+           } else { // 해당날짜에 해당하는 본인 데이터가 있을 시
         	   
         	    ObjectMapper objectMapper = new ObjectMapper();
 				
@@ -219,7 +219,8 @@ public class MissionService {
 			    // FILE_ROUTE 키의 값 가져오기
 			    String fileRoute = (String) jsonObject.get("FILE_ROUTE");			    			   
 			    
-			    String file = fileService.myAuthImage(fileRoute);
+			    // Base64로 인코딩된 이미지 파일 문자열로 가져옴
+			    String file = fileService.myAuthImage(fileRoute); 
         	   
 			    if(file.equals("N")) {
 			    	log.info("본인 미션 상세보기 ------> " + "이미지를 표시할 수 없습니다.");
