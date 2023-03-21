@@ -52,19 +52,19 @@ public class MemberController {
 		
 		if(memberDto.getEmail() != null) {
 			 result = memberService.validateDuplicatedEmail(memberDto.getEmail());
-			 message.setStatusCode("HttpStatus");
+			 message.setStatusCode(result.get("HttpStatus"));
 		 	 message.setMsg(result.get("Msg"));
 			return new ResponseEntity<>(message,HttpStatus.OK); 
 		}
 		
 		if(memberDto.getNickName() != null) {
 			 result = memberService.validateDuplicatedNickName(memberDto.getNickName());
-			 message.setStatusCode("HttpStatus");
+			 message.setStatusCode(result.get("HttpStatus"));
 		 	 message.setMsg(result.get("Msg"));
 			return new ResponseEntity<>(message,HttpStatus.OK); 
 		}
 				
-		return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST);		
+		return new ResponseEntity<>(message,HttpStatus.OK);		
 					
 	}
 	
