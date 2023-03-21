@@ -44,4 +44,11 @@ public interface MemberMapper {
 	 * @return
 	 */
 	HashMap<String,String> missionAuthInfo (Map<String, String> data);
+	
+	/**
+	 * 본인 미션 삭제
+	 * @param data
+	 * @return
+	 */
+	int missionAuthDelete (Map<String, String> data);
 }

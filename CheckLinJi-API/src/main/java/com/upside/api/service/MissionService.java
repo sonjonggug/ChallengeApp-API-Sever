@@ -247,5 +247,53 @@ public class MissionService {
 		}               		 
 	  return result ;				 	    			    		   
 	}
+	
+	
+	/**
+	 * 본인 미션 삭제
+	 * @param fileUploadDto
+	 * @return
+	 * @throws JsonProcessingException 
+	 * @throws ParseException 
+	 */
+	public Map<String, Object> myAuthDelete(ChallengeSubmissionDto challengeSubmissionDto)  {
 		
+		log.info("본인 미션 삭제 ------> " + "Start");
+		Map<String, Object> result = new HashMap<String, Object>();
+				        
+        
+        // 현재 년도와 월을 가져옵니다.
+        String year = challengeSubmissionDto.getYear();
+        String month = challengeSubmissionDto.getMonth();
+        String day = challengeSubmissionDto.getDay();
+        String date = year+"-"+ month+"-"+day;                                
+        
+        Map<String, String> data = new HashMap<String, String>();
+        
+        data.put("date", date);
+        data.put("email", challengeSubmissionDto.getEmail());
+        
+        try {
+        	int missionAuthInfo = memberMapper.missionAuthDelete(data); // 해당날짜에 해당하는 본인 데이터
+        	        	        	
+        	if (missionAuthInfo == 0 ) {
+        		log.info("본인 미션 삭제 ------> " + "요청이 제대로 처리되지 않았습니다.");
+        	    result.put("HttpStatus","1.00");		
+       			result.put("Msg","요청이 제대로 처리되지 않았습니다.");
+       		 return result ;
+       		 
+           } else { // 본인 미션 삭제
+        	    log.info("본인 미션 삭제 ------> " + Constants.SUCCESS);
+       	    	result.put("HttpStatus","2.00");		
+      			result.put("Msg",Constants.SUCCESS);    
+           }
+		} catch (DataAccessException e) {
+			log.info("본인 미션 삭제 ------> " + "Data 접근 실패");
+    	    result.put("HttpStatus","1.00");		
+   			result.put("Msg","Data 접근 실패");
+   		 return result ;			
+		}               		 
+	  return result ;				 	    			    		   
+	}
+	
 }

@@ -78,4 +78,10 @@
 	AND EMAIL =  #{email}  
 	</select>
 	
+	<!-- 본인 미션 정보 삭제 -->
+	<delete id="missionAuthDelete" parameterType="MemberDto" >
+		DELETE FROM FILE_UPLOAD 
+	WHERE UPLOAD_DATE = #{date}
+	AND EMAIL =  #{email}  
+	</delete>	
 </mapper>

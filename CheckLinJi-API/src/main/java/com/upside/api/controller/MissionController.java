@@ -132,4 +132,31 @@ public class MissionController {
 		
 		return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST);		
 	} 
+	
+	/**
+	 * 본인 미션 삭제하기
+	 * @param challengeSubmissionDto
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping("/myAuth/delete")
+    public ResponseEntity<RankingMessageDto> myAuthDelete(@RequestBody ChallengeSubmissionDto challengeSubmissionDto) throws Exception {
+	 	
+		RankingMessageDto message = new RankingMessageDto();	
+		
+		Map<String, Object > result = rankingSerivce.myAuthDelete(challengeSubmissionDto);
+	  	
+		if (result.get("HttpStatus").equals("2.00")) { // 성공											
+			    message.setMsg((String) result.get("Msg"));
+				message.setStatusCode((String) result.get("HttpStatus"));
+				message.setUserList(result.get("missionAuthInfo"));
+			    message.setFile((String) result.get("file"));
+			
+		} else {			
+			message.setMsg((String) result.get("Msg"));
+			message.setStatusCode((String) result.get("HttpStatus"));			
+		}
+		
+		return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST);		
+	} 
 }

@@ -57,7 +57,7 @@ public class FileService {
 		Map<String, String> result = new HashMap<String, String>();
 	  	LocalDate now = LocalDate.now();  
 	 	try {
-	 	// 업로드된 파일 이름 가져오기
+	 		// 업로드된 파일 이름 가져오기
 	        String fileName = fileUploadDto.getEmail()+"_"+now+"_"+StringUtils.cleanPath(file.getOriginalFilename());
 
 	        // 파일 저장 경로 생성
