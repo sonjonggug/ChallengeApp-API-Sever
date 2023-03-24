@@ -211,14 +211,16 @@ public class MemberService {
 	public Map<String, String> deleteMember(String email) {
 		Map<String, String> result = new HashMap<String, String>();
 		
-		 if(memberRepository.findById(email).isPresent() == false ) {
-//			 memberRepository.deleteById(email);
-			 String completed = "N";
-			 String deleteYn = memberMapper.memberDelete(email,completed);
-			 			 
-			 System.out.println(deleteYn);
+		 if(memberRepository.findById(email).isPresent() == true ) {			 
 			 
-			 if (deleteYn.equals("Y")) {
+			 HashMap<String, String> param = new HashMap<String, String>();			 			 			 
+			 
+			 param.put("email", email);
+			 param.put("COMPLETED", "");
+			 
+			 memberMapper.memberDelete(param);
+			 			 			 			 
+			 if (param.get("COMPLETED").equals("Y")) {
 				 log.info("삭제 성공 ------> " + email);
 				 result.put("HttpStatus", "2.00");
 				 result.put("Msg", Constants.SUCCESS);
@@ -230,7 +232,7 @@ public class MemberService {
 		 } else {
 			 log.info("삭제 실패 ------> " + email);
 			 result.put("HttpStatus", "1.00");
-			 result.put("Msg", Constants.FAIL);
+			 result.put("Msg", "존재하지 않는 이메일입니다.");
 			 	
 		 }
 		 return result ; 

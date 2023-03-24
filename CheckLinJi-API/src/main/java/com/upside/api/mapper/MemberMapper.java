@@ -57,5 +57,5 @@ public interface MemberMapper {
 	 * @param data
 	 * @return
 	 */
-	String memberDelete (String email , String completed);
+	HashMap<String, Object> memberDelete (HashMap<String, String> param);
 }
