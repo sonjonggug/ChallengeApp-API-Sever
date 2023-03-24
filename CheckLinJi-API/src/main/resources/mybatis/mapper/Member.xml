@@ -84,4 +84,10 @@
 	WHERE UPLOAD_DATE = #{date}
 	AND EMAIL =  #{email}  
 	</delete>	
+	
+	<!-- 본인 미션 정보 삭제 parameterType="String" resultType="String" -->
+	<update id="memberDelete" statementType="CALLABLE" > 
+		 CALL DELETE_MEMBER (#{email, mode=IN}, #{completed , mode=OUT, jdbcType=VARCHAR}) 
+	</update>	
+	 
 </mapper>

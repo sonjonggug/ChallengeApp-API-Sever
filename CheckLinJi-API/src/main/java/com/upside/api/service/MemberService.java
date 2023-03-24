@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.upside.api.config.JwtTokenProvider;
 import com.upside.api.dto.MemberDto;
 import com.upside.api.entity.MemberEntity;
+import com.upside.api.mapper.MemberMapper;
 import com.upside.api.repository.MemberRepository;
 import com.upside.api.util.Constants;
 
@@ -35,6 +36,7 @@ public class MemberService {
 	private final JwtTokenProvider jwtTokenProvider;		
 	private final PasswordEncoder passwordEncoder;
 	private final EntityManager entityManager;
+	private final MemberMapper memberMapper ;
 	/**
 	 * 회원목록 조회
 	 * @param memberDto
@@ -209,12 +211,22 @@ public class MemberService {
 	public Map<String, String> deleteMember(String email) {
 		Map<String, String> result = new HashMap<String, String>();
 		
-		 if(memberRepository.findById(email).isPresent() == true ) {
-			 memberRepository.deleteById(email);
-			 log.info("삭제 성공 ------> " + email);
-			 result.put("HttpStatus", "2.00");
-			 result.put("Msg", Constants.SUCCESS);
+		 if(memberRepository.findById(email).isPresent() == false ) {
+//			 memberRepository.deleteById(email);
+			 String completed = "N";
+			 String deleteYn = memberMapper.memberDelete(email,completed);
+			 			 
+			 System.out.println(deleteYn);
 			 
+			 if (deleteYn.equals("Y")) {
+				 log.info("삭제 성공 ------> " + email);
+				 result.put("HttpStatus", "2.00");
+				 result.put("Msg", Constants.SUCCESS);
+			 }else {
+				 log.info("삭제 실패 ------> " + email);
+				 result.put("HttpStatus", "1.00");
+				 result.put("Msg", Constants.FAIL);
+			 }			 			 			 
 		 } else {
 			 log.info("삭제 실패 ------> " + email);
 			 result.put("HttpStatus", "1.00");
