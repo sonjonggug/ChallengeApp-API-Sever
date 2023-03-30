@@ -6,8 +6,12 @@ import java.security.NoSuchAlgorithmException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-		 	
-public class Encrypt {
+/**
+ * 패스워드 암호화 함수
+ * @author user
+ *
+ */
+public class Encrypt { 
 
  		public static String sha2String(String inputStr) {
 
