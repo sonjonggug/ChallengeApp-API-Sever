@@ -73,7 +73,14 @@ public class Excel {
 		}
 		 
 		 
-		
+		/**
+		 * 실제 엑셀 기능 다운로드 기능을 담당
+		 * @param memberDto
+		 * @param excelGubun
+		 * @param response
+		 * @return
+		 * @throws Exception
+		 */
 		public boolean getReserveExcel(MemberDto memberDto , String excelGubun ,  HttpServletResponse response) throws Exception {
 		
 			try {

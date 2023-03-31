@@ -18,12 +18,13 @@
 
 
 <script>
-function memberList(){
-	alert("sss");
+function memberList(){	
 	$.ajax({		 		
 	 	type : 'POST', // 메소드 타입
 		url : '/api/excel/memberList', // url 
-		dataType : 'binary', // 서버에서 반환되는 데이터 형식을 정한다. 생략했을 경우는, jQuery가 MIME 타입 등을 보면서 자동으로 결정
+		xhrFields: {
+		        responseType: 'blob' // 반환된 데이터를 Blob으로 받아오기 위해 설정
+		    },
 		contentType : 'application/json; charset=utf-8', // 서버에 데이터를 보낼 때 사용 content - type 헤더의 값
 		data :  JSON.stringify({
 			email : 'thswhdrnr12@naver.com' 			
@@ -32,14 +33,14 @@ function memberList(){
 	 		  var a = document.createElement('a');
 	 	        var url = window.URL.createObjectURL(data);
 	 	        a.href = url;
-	 	        a.download = 'excelFileName.xlsx';
+	 	        a.download = 'memberListExcel.xlsx';
 	 	        document.body.append(a);
 	 	        a.click();
 	 	        a.remove();
 	 	        window.URL.revokeObjectURL(url);
 	 	    },
 	 	   error : function(error) {
-	 	       alert("실패");    	 	        
+	 	       alert(error);    	 	        
 	 	    }
 	 		});
 }

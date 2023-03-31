@@ -75,7 +75,14 @@ public class ExcelApiDownload {
 		}
 		 
 		 
-		
+		/**
+		 * 실제 엑셀 기능 다운로드 기능을 담당
+		 * @param memberDto
+		 * @param excelGubun
+		 * @param response
+		 * @return
+		 * @throws Exception
+		 */
 		public ByteArrayInputStream getReserveExcel(MemberDto memberDto , String excelGubun ,  HttpServletResponse response) throws Exception {
 		
 			try {
@@ -188,12 +195,13 @@ public class ExcelApiDownload {
 					}
 			}			  
 			  			  
-			  ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		      outputStream.flush(); // 엑셀 다운로드를 개발할 때 주기적으로 flush()를 실행하여 메모리를 확보합니다.
+			  ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); // // 데이터를 메모리 버퍼에 저장하는 ByteArrayOutputStream 객체를 생성.
+		      outputStream.flush(); 
 		      wb.write(outputStream);
-		      outputStream.flush();		      
+		      outputStream.flush();	// 버퍼링된 모든 데이터를 출력합니다. 엑셀 파일 생성 중에 메모리 부족 문제를 방지하기 위해 주기적으로 flush() 메소드를 호출하는 것이 좋습니다.	      
 		      log.info("엑셀 다운로드 성공 ");
 		      
+		      // 생성된 엑셀 파일 데이터를 바이트 배열로 변환한 뒤, ByteArrayInputStream 객체로 감싸서 반환합니다.
 		      return new ByteArrayInputStream(outputStream.toByteArray());
   
 			} catch (Exception e) {

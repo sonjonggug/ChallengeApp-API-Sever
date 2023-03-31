@@ -44,32 +44,26 @@ public class ExcelController {
     
     @ResponseBody
     @PostMapping("/memberList")     
-    public void MemberListExcel(@RequestBody MemberDto memberDto ,  HttpServletResponse response) throws Exception {    	
+    public void MemberListExcel(@RequestBody MemberDto memberDto ,  HttpServletResponse response) throws Exception {
+    	
     	String data = "memberListExcel";    	
     	MessageDto message = new MessageDto();
     	
+    	// 엑셀 데이터 생성
     	ByteArrayInputStream result = excelApi.getReserveExcel(memberDto,data,response);  
     	
-    	if(result != null) {
-    		 System.out.println(" 값있음");
-    		 response.setContentType("application/octet-stream");
-             //첨부파일의 다운로드 이름을 설정합니다.
-             response.setHeader("Content-Disposition", "attachment; filename=excelFileName.xlsx");
-             
-//             IOUtils.copy(result, response.getOutputStream());
-             
-             try (OutputStream out = response.getOutputStream()) {
-            	    IOUtils.copy(result, out);
+    	if(result != null) {    		 
+    		 
+    		// 생성된 엑셀 데이터를 response로 전송
+    		 response.setContentType("application/octet-stream");             
+             response.setHeader("Content-Disposition", "attachment; filename=memberListExcel.xlsx");
+                                       
+             try (OutputStream out = response.getOutputStream()) { // HttpServletResponse 객체의 출력 스트림. 
+            	    IOUtils.copy(result, out); // 입력 스트림으로부터 데이터를 읽어 출력 스트림으로 전송하는 기능 ( result 객체에서 데이터를 읽어 out 객체로 전송하는 역할 )
             	} finally {
             	    IOUtils.closeQuietly(result);
             	}
     		
-    	} else {
-    		message.setMsg(Constants.FAIL);
-			message.setStatusCode("1.00");
-			
-    	              	        
-    	}
-    	    	                 
+    	}     	    	                
     }
 }
