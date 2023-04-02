@@ -1,11 +1,12 @@
 package com.upside.api.config;
 
-
-
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 	
@@ -17,4 +18,5 @@ public class WebConfig implements WebMvcConfigurer {
     registry.addMapping("/**")
         .allowedOrigins("http://localhost:3000");
   }
+ 
 }

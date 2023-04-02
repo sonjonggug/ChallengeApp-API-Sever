@@ -14,7 +14,7 @@
 	<name>CheckLinJi-API</name>
 	<description>CheckLinJi API Server</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -173,17 +173,20 @@
 		    <version>3.9</version>
 		</dependency>
 		<!-- excel 관련 라이브러리 -->
+		
 		<!-- XSS 보안 관련 라이브러리 (naver) -->
-<!-- 		<dependency> -->
-<!-- 	    <groupId>com.navercorp.lucy</groupId> -->
-<!-- 	    <artifactId>lucy-xss-servlet</artifactId> -->
-<!-- 	    <version>2.0.1</version> -->
-<!-- 		</dependency> -->
-			<dependency>
-			<groupId>com.navercorp.lucy</groupId>
-			<artifactId>lucy-xss-servlet</artifactId>
-			<version>2.0.0</version>
+		<dependency>
+	    <groupId>com.navercorp.lucy</groupId>
+	    <artifactId>lucy-xss-servlet</artifactId>
+	    <version>2.0.1</version>
+		</dependency>		
+		<dependency>
+		  <groupId>org.apache.commons</groupId>
+		  <artifactId>commons-text</artifactId>
+		  <version>1.10.0</version>
 		</dependency>
+		<!-- XSS 보안 관련 라이브러리 (naver) -->
+		
 		<!--HttpServlet 관련 라이브러리  -->
 	<dependency>
 	    <groupId>javax.servlet</groupId>
@@ -191,6 +194,21 @@
 	    <version>4.0.1</version>
 	    <scope>provided</scope>
 	</dependency>
+	<!-- https://mvnrepository.com/artifact/javax.servlet/jstl -->
+		<dependency>
+	    <groupId>jakarta.servlet</groupId>
+	    <artifactId>jakarta.servlet-api</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>org.glassfish.web</groupId>
+	    <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>jakarta.servlet.jsp.jstl</groupId>
+	    <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+	</dependency>
+
+	
 	<!-- JAVA에는 JSON이라는 데이터 타입이 없습니다. 따라서 JSON데이터에 대한 처리를 하는 라이브러리를 추가해야만 하는데 대표적으로 jackson-->
     <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
