@@ -39,7 +39,7 @@ public class MemberController {
 	
 	
 	@GetMapping 						  /* default size = 10 */
-	public Page<MemberEntity> memberList(@PageableDefault (sort = "userId", direction = Sort.Direction.DESC) Pageable pageable  ) {
+	public Page<MemberEntity> memberList(@PageableDefault (sort = "email", direction = Sort.Direction.DESC) Pageable pageable  ) {
 				
 				
 		return memberService.memberList(pageable);
