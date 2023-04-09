@@ -11,6 +11,7 @@
 	<groupId>com.upside</groupId>
 	<artifactId>CheckLinJi-API</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>CheckLinJi-API</name>
 	<description>CheckLinJi API Server</description>
 	<properties>
@@ -92,10 +93,10 @@
 	        <scope>runtime</scope>
 	    </dependency>
 	    <!-- JWT 토큰을 저장하기위한 NoSql redis -->
-		<dependency>
-		    <groupId>org.springframework.boot</groupId>
-		    <artifactId>spring-boot-starter-data-redis</artifactId>		    
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 		    <groupId>org.springframework.boot</groupId> -->
+<!-- 		    <artifactId>spring-boot-starter-data-redis</artifactId>		     -->
+<!-- 		</dependency> -->
 		<!-- JSON 변환  -->
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
@@ -214,10 +215,10 @@
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>  
 </dependency>
-		<dependency>
-		    <groupId>org.apache.tomcat.embed</groupId>
-		    <artifactId>tomcat-embed-jasper</artifactId>
-		</dependency>     
+<!-- 		<dependency> -->
+<!-- 		    <groupId>org.apache.tomcat.embed</groupId> -->
+<!-- 		    <artifactId>tomcat-embed-jasper</artifactId> -->
+<!-- 		</dependency>      -->
 	</dependencies>
 
 	<build>
@@ -235,6 +236,38 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		  <resources>
+	        <!-- 공통 -->
+	        <resource>
+	            <directory>src/main/resources</directory>
+	        </resource>
+	        <!-- local/dev/prod -->
+	        <resource>
+	            <directory>src/main/resources-${env}</directory>
+	        </resource>
+	    </resources>
+	    <testResources>
+	        <testResource>
+	            <directory>src/test/resources</directory>
+	        </testResource>
+	    </testResources>	
 	</build>
-
+	<profiles>
+	    <profile>
+	        <id>local</id>
+	        <properties>
+	            <env>local</env>
+	        </properties>
+	        <!-- 기본 프로파일 -->
+	        <activation>
+	            <activeByDefault>true</activeByDefault>
+	        </activation>
+	    </profile>
+	    <profile>
+	        <id>prod</id>
+	        <properties>
+	            <env>prod</env>
+	        </properties>
+	    </profile>
+</profiles>
 </project>
