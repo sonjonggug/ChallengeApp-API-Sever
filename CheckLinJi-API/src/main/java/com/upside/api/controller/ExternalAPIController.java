@@ -66,9 +66,11 @@ public class ExternalAPIController {
 			  
 			  String answer = res.substring(res.lastIndexOf(":")+1)
 					  			 .replace("\"", "")
-					  			 .replace("}</code>", "")
+					  			 .replace("{", "")
+					  			 .replace("</code>", "")
 					  			 .replace("\r", "")
-					  			 .replace("\n", "");
+					  			 .replace("\n", "")
+					  			.replace("}", "");
 			  
 			  message.setMsg(answer);
 			  message.setStatusCode("2.00");
