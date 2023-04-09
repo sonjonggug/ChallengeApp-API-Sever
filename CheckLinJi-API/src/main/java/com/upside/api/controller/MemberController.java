@@ -11,9 +11,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,6 +42,21 @@ public class MemberController {
 				
 				
 		return memberService.memberList(pageable);
+	}
+	
+	@PostMapping("/email")
+	public ResponseEntity<Map<String , Object>> selectMember(@RequestBody MemberDto memberDto) {				
+		Map<String , Object> result = new HashMap<String, Object>();
+		
+			result = memberService.selectMember(memberDto.getEmail());
+		
+		if (result.get("HttpStatus").equals("2.00")) { // 성공
+			
+			return new ResponseEntity<>(result,HttpStatus.OK);			
+		} else {			
+
+			return new ResponseEntity<>(result,HttpStatus.BAD_REQUEST);
+		} 			
 	}
 	
 	@PostMapping("/validateDuplicated")

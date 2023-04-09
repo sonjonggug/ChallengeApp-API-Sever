@@ -47,6 +47,27 @@ public class MemberService {
 		return  memberRepository.findAll(pageable);							
 	}
 	
+	@Transactional(readOnly = true)
+	public Map<String, Object> selectMember(String email) {	
+		Map<String, Object> result = new HashMap<String, Object>();
+		
+		
+		Optional<MemberEntity> data = memberRepository.findById(email);
+		
+		 if(data.isPresent()) {		
+			 data.get().setPassword("");
+			 result.put("HttpStatus","2.00");
+			 result.put("Msg",Constants.SUCCESS);
+			 result.put("selectMember",data.get());			 			 			 
+		 } else {
+			 result.put("HttpStatus","1.00");
+			 result.put("Msg",Constants.FAIL);
+		 }
+		 
+		 return result;
+							
+	}
+	
 	/**
 	 * 회원가입 
 	 * @param memberDto
