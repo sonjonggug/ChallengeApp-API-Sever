@@ -230,32 +230,41 @@ public class MemberService {
 	 * @return
 	 */
 	public Map<String, String> deleteMember(String email) {
-		Map<String, String> result = new HashMap<String, String>();
 		
-		 if(memberRepository.findById(email).isPresent() == true ) {			 
-			 
-			 HashMap<String, String> param = new HashMap<String, String>();			 			 			 
-			 
-			 param.put("email", email);
-			 param.put("COMPLETED", "");
-			 
-			 memberMapper.memberDelete(param);
-			 			 			 			 
-			 if (param.get("COMPLETED").equals("Y")) {
-				 log.info("삭제 성공 ------> " + email);
-				 result.put("HttpStatus", "2.00");
-				 result.put("Msg", Constants.SUCCESS);
-			 }else {
+			Map<String, String> result = new HashMap<String, String>();
+			
+		try {						
+			 if(memberRepository.findById(email).isPresent() == true ) {			 
+				 
+				 HashMap<String, String> param = new HashMap<String, String>();			 			 			 
+				 
+				 param.put("email", email);
+				 param.put("COMPLETED", "");
+				 
+				 memberMapper.memberDelete(param);
+				 			 			 			 
+				 if (param.get("COMPLETED").equals("Y")) {
+					 log.info("삭제 성공 ------> " + email);
+					 result.put("HttpStatus", "2.00");
+					 result.put("Msg", Constants.SUCCESS);
+				 }else {
+					 log.info("삭제 실패 ------> " + email);
+					 result.put("HttpStatus", "1.00");
+					 result.put("Msg", Constants.FAIL);
+				 }			 			 			 
+			 } else {
 				 log.info("삭제 실패 ------> " + email);
 				 result.put("HttpStatus", "1.00");
-				 result.put("Msg", Constants.FAIL);
-			 }			 			 			 
-		 } else {
-			 log.info("삭제 실패 ------> " + email);
+				 result.put("Msg", "존재하지 않는 이메일입니다.");
+				 	
+			 }
+		} catch (Exception e) {
+			 log.info("DB 에러 ------> " );
+			 e.printStackTrace();
 			 result.put("HttpStatus", "1.00");
-			 result.put("Msg", "존재하지 않는 이메일입니다.");
-			 	
-		 }
+			 result.put("Msg", "DB 오류로 인한 실패");
+		}
+		
 		 return result ; 
 }	
 	/**

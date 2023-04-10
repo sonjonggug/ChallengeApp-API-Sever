@@ -87,7 +87,7 @@
 	
 	<!-- 본인 미션 정보 삭제 parameterType="String" resultType="String" -->
 	<select id="memberDelete" statementType="CALLABLE" resultType="hashmap"> 
-		 CALL DELETE_MEMBER (#{email, mode=IN}, #{COMPLETED , mode=OUT, jdbcType=VARCHAR}) 
+		 CALL DELETE_MEMBER (#{email, mode=IN , jdbcType=VARCHAR}, #{COMPLETED , mode=OUT, jdbcType=VARCHAR}) 
 	</select>	
 	 
 </mapper>
