@@ -56,10 +56,12 @@ public class MemberService {
 		
 		 if(data.isPresent()) {		
 			 data.get().setPassword("");
+			 log.info("회원목록 조회 ------> " + Constants.SUCCESS);
 			 result.put("HttpStatus","2.00");
 			 result.put("Msg",Constants.SUCCESS);
 			 result.put("selectMember",data.get());			 			 			 
 		 } else {
+			 log.info("회원목록 조회 ------> " + Constants.FAIL);
 			 result.put("HttpStatus","1.00");
 			 result.put("Msg",Constants.FAIL);
 		 }

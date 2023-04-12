@@ -14,7 +14,7 @@ public interface ExcelMapper {
 	 * @param memberDto
 	 * @return
 	 */
-	List<MemberDto> memberListExcel (MemberDto memberDto);
+	List<MemberDto> memberListExcel ();
 	
 	
 }

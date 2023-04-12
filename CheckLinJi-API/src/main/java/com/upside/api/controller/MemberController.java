@@ -46,7 +46,7 @@ public class MemberController {
 	
 	@PostMapping("/email")
 	public ResponseEntity<Map<String , Object>> selectMember(@RequestBody MemberDto memberDto) {				
-		Map<String , Object> result = new HashMap<String, Object>();
+		Map<String , Object> result = new HashMap<String, Object>();	
 		
 			result = memberService.selectMember(memberDto.getEmail());
 		
@@ -54,7 +54,7 @@ public class MemberController {
 			
 			return new ResponseEntity<>(result,HttpStatus.OK);			
 		} else {			
-
+			
 			return new ResponseEntity<>(result,HttpStatus.BAD_REQUEST);
 		} 			
 	}

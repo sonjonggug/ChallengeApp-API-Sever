@@ -87,7 +87,7 @@ public class Excel {
 				 SXSSFWorkbook wb = new SXSSFWorkbook();
 				  Sheet sheet = wb.createSheet();
 					if(excelGubun.equals("memberListExcel")) {
-						List<MemberDto> list = excelMapper.memberListExcel(memberDto);
+						List<MemberDto> list = excelMapper.memberListExcel();
 						  
 						  // 셀 크기
 						  sheet.setColumnWidth((short) 0, (short) 1300); 

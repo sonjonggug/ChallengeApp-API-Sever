@@ -7,22 +7,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
+import com.upside.api.dto.SayingDto;
+import com.upside.api.entity.SayingEntity;
+import com.upside.api.repository.WiseSayingRepository;
+import com.upside.api.util.Constants;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -30,70 +33,42 @@ import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j // 로깅에 대한 추상 레이어를 제공하는 인터페이스의 모음.
+@RequiredArgsConstructor
 @Service
 public class ExternalAPIService {
 
 	@Value("${chatGpt.api.key}")
 	private String chatGptKey;
+	
+	private final WiseSayingRepository wiseSayingRepository;
+	
+	
 	 /**
 	  * 명언 API 
 	  * @return
 	  */
-	 public String getWiseSayingAPI () {
-		 	
-		 	log.info("명언 API ------> Start");
+	 public  Map<String,String> getWiseSayingAPI () {
 		 
+		 Map<String,String> result = new HashMap<String, String>();
+		 
+		 LocalDate now = LocalDate.now();
+	     Long day = (long) now.getDayOfMonth();	     
 	     
-	        String reqURL = "https://api.qwer.pw/request/helpful_text?apikey=guest";
-	        String answer = "";
-	        try {
-	            URL url = new URL(reqURL);
-	            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-	            
-	            conn.setRequestMethod("GET");
-//	            conn.setDoOutput(true); // POST 요청을 위해 기본값이 false인 setDoOutput을 true로
-
-	            //POST 요청에 필요로 요구하는 파라미터 스트림을 통해 전송
-//	            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
-//	            StringBuilder sb = new StringBuilder();
-//	            sb.append("apikey=guest");	            
-//	            bw.write(sb.toString());
-//	            bw.flush();
-
-	            //결과 코드가 200이라면 성공
-	            int responseCode = conn.getResponseCode();
-	            
-	            log.info("명언 API responseCode ------>"+ responseCode);	            
-
-	            //요청을 통해 얻은 JSON타입의 Response 메세지 읽어오기
-	            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-	            String line = "";
-	            String result = "";
-
-	            while ((line = br.readLine()) != null) {
-	                result += line;
-	            }
-	            
-	            log.info("명언 API responseBody ------>"+ result);	            
-
-	            //Gson 라이브러리에 포함된 클래스로 JSON파싱 객체 생성
-	            JsonReader reader = new JsonReader(new StringReader(result));
-	            JsonElement element = JsonParser.parseReader(reader).getAsJsonArray().get(1);
-	            	            	            
-	             answer = element.getAsJsonObject().get("respond").getAsString();
-	            
-	            log.info("명언 API answer ------> "+ answer);
-	            
-	            br.close();
-//	            bw.close();
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	        
-	        log.info("명언 API ------> End");
-	        
-	        return answer ;
+	     Optional<SayingEntity> existYN = wiseSayingRepository.findBysaySeq(day);
+	     
+		 if(existYN.isPresent()) {
+			 log.info("명언 ------> " + Constants.SUCCESS);
+			 result.put("HttpStatus","2.00");
+			 result.put("Msg",Constants.SUCCESS);
+			 result.put("name",existYN.get().getName());
+			 result.put("content",existYN.get().getMsg());		 			 
+		 } else {
+			 log.info("명언 ------> " + Constants.FAIL);
+			 result.put("HttpStatus","1.00");
+			 result.put("Msg",Constants.FAIL);
+		 }
+	
+	        return result ;
 	    }	
 	 
 	 /**

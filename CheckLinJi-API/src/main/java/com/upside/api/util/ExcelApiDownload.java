@@ -83,13 +83,13 @@ public class ExcelApiDownload {
 		 * @return
 		 * @throws Exception
 		 */
-		public ByteArrayInputStream getReserveExcel(MemberDto memberDto , String excelGubun ,  HttpServletResponse response) throws Exception {
+		public ByteArrayInputStream getReserveExcel(String excelGubun ,  HttpServletResponse response) throws Exception {
 		
 			try {
 				 SXSSFWorkbook wb = new SXSSFWorkbook();
 				  Sheet sheet = wb.createSheet();
 					if(excelGubun.equals("memberListExcel")) {
-						List<MemberDto> list = excelMapper.memberListExcel(memberDto);
+						List<MemberDto> list = excelMapper.memberListExcel();
 						  
 						  // 셀 크기
 						  sheet.setColumnWidth((short) 0, (short) 1300); 

@@ -44,13 +44,13 @@ public class ExcelController {
     
     @ResponseBody
     @PostMapping("/memberList")     
-    public void MemberListExcel(@RequestBody MemberDto memberDto ,  HttpServletResponse response) throws Exception {
+    public void MemberListExcel(HttpServletResponse response) throws Exception {
     	
     	String data = "memberListExcel";    	
     	MessageDto message = new MessageDto();
     	
     	// 엑셀 데이터 생성
-    	ByteArrayInputStream result = excelApi.getReserveExcel(memberDto,data,response);  
+    	ByteArrayInputStream result = excelApi.getReserveExcel(data,response);  
     	
     	if(result != null) {    		 
     		 

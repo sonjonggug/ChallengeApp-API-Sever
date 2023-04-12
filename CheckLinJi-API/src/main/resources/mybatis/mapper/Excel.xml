@@ -6,7 +6,7 @@
 <mapper namespace="com.upside.api.mapper.ExcelMapper">
 	
 	<!-- 사용자 리스트 Excel 쿼리 -->
-	<select id="memberListExcel" parameterType="MemberDto" resultType="MemberDto" >
+	<select id="memberListExcel"  resultType="MemberDto" >
 		SELECT
 			EMAIL ,
 			NAME ,

@@ -2,10 +2,11 @@ package com.upside.api.controller;
 
 
 
+import java.util.Map;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,11 +32,18 @@ public class ExternalAPIController {
 	 * 명언 API	
 	 * @return
 	 */
-	@GetMapping 						  	
-	public String wiseSayingAPI () {
-				
-		return externalAPIService.getWiseSayingAPI();
-					
+	@GetMapping("/wiseSaying") 						  	
+	public ResponseEntity<Map<String,String>> wiseSayingAPI () {
+		
+						
+		Map<String,String> result = externalAPIService.getWiseSayingAPI();
+		
+		if(result.get("HttpStatus").equals("2.00")) {			
+			return new ResponseEntity<>(result,HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(result,HttpStatus.BAD_REQUEST);
+		}
+		
 	 }
 	
 	/**
