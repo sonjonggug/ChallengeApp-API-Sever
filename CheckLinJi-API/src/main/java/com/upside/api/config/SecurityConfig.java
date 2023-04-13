@@ -52,7 +52,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated() // 그 외 모든 요청은 인증과정 필요 
 //        		.anyRequest().permitAll() // 모든 요청에 대해 인증 생략
                 .and()                
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class); //  JWT 인증 필터를 추가합니다.
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class); // UsernamePassword 필터전에 JWT 인증 필터를 추가합니다.
 
         return http.build();
     }
