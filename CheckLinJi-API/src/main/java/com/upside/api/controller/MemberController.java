@@ -15,14 +15,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.upside.api.config.JwtTokenProvider;
 import com.upside.api.dto.MemberDto;
 import com.upside.api.dto.MessageDto;
 import com.upside.api.entity.MemberEntity;
 import com.upside.api.service.MemberService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -32,6 +35,7 @@ public class MemberController {
 	
 	private final MemberService memberService ;
 	
+	private final JwtTokenProvider jwtTokenProvider;
 	
 
 	
@@ -45,10 +49,12 @@ public class MemberController {
 	}
 	
 	@PostMapping("/email")
-	public ResponseEntity<Map<String , Object>> selectMember(@RequestBody MemberDto memberDto) {				
+	public ResponseEntity<Map<String , Object>> selectMember(@RequestHeader("Authorization") String authHeader) {				
 		Map<String , Object> result = new HashMap<String, Object>();	
+			
+		    String token = jwtTokenProvider.getEmail(authHeader); // email을 얻기위해 헤더에서 토큰을 디코딩하는 부분이다.
 		
-			result = memberService.selectMember(memberDto.getEmail());
+			result = memberService.selectMember(token);
 		
 		if (result.get("HttpStatus").equals("2.00")) { // 성공
 			
