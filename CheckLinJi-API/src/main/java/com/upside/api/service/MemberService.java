@@ -9,6 +9,8 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,6 +39,7 @@ public class MemberService {
 	private final PasswordEncoder passwordEncoder;
 	private final EntityManager entityManager;
 	private final MemberMapper memberMapper ;
+	private final RedisTemplate<String, String> redisTemplate;
 	/**
 	 * 회원목록 조회
 	 * @param memberDto
@@ -359,7 +362,13 @@ public class MemberService {
         } else {
         	 
         	 String accessToken = jwtTokenProvider.createToken(member.getEmail());
-             String refreshToken = jwtTokenProvider.createRefreshToken();             
+             String refreshToken = jwtTokenProvider.createRefreshToken();
+             
+             ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+             valueOperations.set("refreshToken_" + member.getEmail(), refreshToken);
+             
+             log.info("redis RT : {}", valueOperations.get("refreshToken_" + member.getEmail()));
+             
              member.setRefreshToken(refreshToken);             
              entityManager.merge(member); // member는 직접 조회한게 아닌 메소드 반환을 통한 객체로 JPA에 관리된 상태가 아닌 순수한 객체이기 떄문에 merge를 통해 병합해준다.      
              log.info("Refresh Token 검증 ------> " + Constants.SUCCESS);
