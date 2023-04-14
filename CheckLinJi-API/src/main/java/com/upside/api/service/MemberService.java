@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -303,8 +304,8 @@ public class MemberService {
 		    } else {
 		    	ValueOperations<String, String> redis = redisTemplate.opsForValue(); // Redis Map 객체 생성		    			    	
 		    	redis.set("refreshToken_"+member.getEmail(), jwtTokenProvider.createRefreshToken()); // refresh Token Redis 저장
+		    	redisTemplate.expire("refreshToken_"+member.getEmail(), 31, TimeUnit.DAYS); // redis refreshToken expire 31일 지정
 		    	
-//		    	member.setRefreshToken((jwtTokenProvider.createRefreshToken())); // refresh Token DB 저장		    
 			    result.put("HttpStatus", "2.00");
 			    result.put("Token", jwtTokenProvider.createToken(memberDto.getEmail()));
 			    result.put("RefreshToken", redis.get("refreshToken_"+member.getEmail()));
@@ -373,6 +374,8 @@ public class MemberService {
              String refreshToken = jwtTokenProvider.createRefreshToken();
              
              redis.set("refreshToken_"+token, refreshToken);
+             
+             redisTemplate.expire("refreshToken_"+token, 31, TimeUnit.DAYS); // redis refreshToken expire 31일 지정
              
              log.info("redis RT : {}", redis.get("refreshToken_"+token));
              
