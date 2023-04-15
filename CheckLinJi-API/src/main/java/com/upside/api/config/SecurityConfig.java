@@ -45,7 +45,8 @@ public class SecurityConfig {
         		.requestMatchers("/api/members/validateDuplicated/**").permitAll()
         		.requestMatchers("/api/social/login/**").permitAll()
         		.requestMatchers("/api/members/refreshToken/**").permitAll()          		
-        		.requestMatchers("/api/external/**").permitAll()  // login 없이 접근 허용 하는 URL
+        		.requestMatchers("/api/external/**").permitAll()
+        		.requestMatchers("/api/send/**").permitAll()
 //        		.requestMatchers("/api/challenge/join/**").permitAll()
 //        		.requestMatchers("/api/challenge/submit/**").permitAll()        		
 //                .requestMatchers("/api/admin/**").hasRole("ADMIN") // admin 의 경우 ADMIN 권한이 있는 사용자만 접근이 가능

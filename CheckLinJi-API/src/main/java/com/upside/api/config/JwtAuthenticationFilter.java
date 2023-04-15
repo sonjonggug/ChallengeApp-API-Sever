@@ -25,11 +25,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter  {
         if (token != null && jwtTokenProvider.validateTokenExceptExpiration(token)) { // 토큰이 존재하는지 확인하고 존재한다면 만료시간이 지나지 않았는지 확인한다.
             Authentication auth = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(auth); // 성공했다면, 인증 객체를 받아오고 SecurityContextHolder에 저장하여 인증을 할 수 있도록 한다.
-            filterChain.doFilter(request, response);
-        } else {        	 
-        	 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 토큰값이 존재하지않거나 만료기간이 지났을때             
-        }
-//        filterChain.doFilter(request, response);
+           
+        } 
+        filterChain.doFilter(request, response);
     }
 }
 
