@@ -29,3 +29,9 @@ hs_err_pid*
 
 CheckLinJi-API/src/main/resources-local/application.properties
 CheckLinJi-API/src/main/resources-prod/application.properties
+CheckLinJi-API/target/classes
+CheckLinJi-API/target/maven-archiver
+CheckLinJi-API/target/maven-status
+CheckLinJi-API/target/surefire-reports
+*.original
+CheckLinJi-API/.factorypath
