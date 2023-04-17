@@ -28,3 +28,5 @@ hs_err_pid*
 # Custom ignore
 resource-prod/
 resource-local/
+CheckLinJi-API/src/main/resources-prod
+CheckLinJi-API/src/main/resources-local
