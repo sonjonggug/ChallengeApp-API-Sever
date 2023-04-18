@@ -29,7 +29,7 @@ public class JwtTokenProvider {
     private String secretKey;
     
     
-    private long tokenValidTime = 1000L * 60 * 30; // 토큰은 무한정으로 사용되면 안되기에 만료 시간 30분
+    private long tokenValidTime = 1000L * 60 * 60; // 토큰은 무한정으로 사용되면 안되기에 만료 시간 60분
     private long refreshTokenValidTime = 1000L * 60 * 60 * 24 * 7; // 7일
         
     private final UserService userDetailsService;

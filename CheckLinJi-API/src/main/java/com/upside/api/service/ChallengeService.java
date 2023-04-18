@@ -174,7 +174,9 @@ public class ChallengeService {
 		Map<String, String> result = new HashMap<String, String>();
 		
 	    log.info("첼린지 제출 ------> " + "Start");
-	
+	    
+	    System.out.println(submissonDto.getChallengeName());
+	    
 		Optional<ChallengeEntity> existsChallenge = challengeRepository.findById(submissonDto.getChallengeName());
 		
 		Optional<MemberEntity> existsMember = memberRepository.findById(submissonDto.getEmail());
@@ -210,18 +212,20 @@ public class ChallengeService {
      	   return result ; 
 		 	}
 		 	
-	 	FileUploadDto fileUploadDto = new FileUploadDto();
-	 	fileUploadDto.setEmail(submissonDto.getEmail());
-	 	fileUploadDto.setUserFeeling(submissonDto.getSubmissionText());
+//	 	FileUploadDto fileUploadDto = new FileUploadDto();
+//	 	fileUploadDto.setEmail(submissonDto.getEmail());
+//	 	fileUploadDto.setUserFeeling(submissonDto.getSubmissionText());
 	 	
 	 	// 파일 업로드 
-	 	Map<String, String> authSubmit = fileService.uploadFile(file, fileUploadDto);
+	 	String submissionImageRoute = fileService.uploadFile(file, submissonDto.getEmail());
 	 	
 	 	// 파일 업로드 성공시 첼린지 인증 성공
-	 	if(authSubmit.get("HttpStatus").equals("2.00")) {	 			 	
+	 	if(!submissionImageRoute.equals("N")) {	 			 	
 		 	ChallengeSubmissionEntity challengeSubmission = ChallengeSubmissionEntity.builder()
 				   											.submissionTime(LocalDate.now()) // 제출 일시
-				   											.submissionText(submissonDto.getSubmissionText()) // 제출 결과
+				   											.submissionTitle(submissonDto.getSubmissionTitle()) // 제목
+				   											.submissionText(submissonDto.getSubmissionText()) // 내용
+				   											.submissionImageRoute(submissionImageRoute)
 				   											.userChallenge(userChallenge) // 유저 첼린지 ID 
 				   											.submissionCompleted("Y") // 인증 성공 유무
 				   											.build();
@@ -235,7 +239,7 @@ public class ChallengeService {
 	 	} else {
 	 		 log.info("첼린지 제출 ------> " + Constants.FAIL);
 		        result.put("HttpStatus","1.00");		
-				result.put("Msg",authSubmit.get("Msg"));	       
+				result.put("Msg",Constants.FAIL);	       
 				log.info("첼린지 제출 ------> " + "End");				
 	 	}
 	 	return result ;

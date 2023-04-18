@@ -53,12 +53,14 @@ public class FileService {
 	 * @return
 	 * @throws IOException
 	 */
-	public Map<String, String> uploadFile(@RequestParam("file") MultipartFile file , FileUploadDto fileUploadDto) throws IOException {
-		Map<String, String> result = new HashMap<String, String>();
+	public String uploadFile(@RequestParam("file") MultipartFile file , String email) throws IOException {
+		
+		String result = "N";
 	  	LocalDate now = LocalDate.now();  
+	  	
 	 	try {
 	 		// 업로드된 파일 이름 가져오기
-	        String fileName = fileUploadDto.getEmail()+"_"+now+"_"+StringUtils.cleanPath(file.getOriginalFilename());
+	        String fileName = email+"_"+now+"_"+StringUtils.cleanPath(file.getOriginalFilename());
 
 	        // 파일 저장 경로 생성
 	        Path uploadPath = Paths.get(uploadDir);
@@ -72,23 +74,17 @@ public class FileService {
 	        Path filePath = uploadPath.resolve(fileName).normalize();		        		        
 	        
 	        // 문자열에서 백슬래시()는 이스케이프 문자(escape character)로 사용되기 때문에 사용할려면 \\ 두개로 해야 \로 인식
-	        String fileRoute = uploadPath.toString() + "\\" + fileName ; 
-	        		        		        		        		        
-	        fileUploadDto.setFileRoute(fileRoute);
-	        fileUploadDto.setFileName(fileName);
-	        fileUploadDto.setUploadDate(now);		        
+	        String fileRoute = uploadPath.toString() + "/" + fileName ; 
+
 	        
-	        // 파일 이름 및 경로 DB 저장 
-	        result = fileRouteInsert(fileUploadDto);
-	        	// DB 저장 성공 시 
-		        if(result.get("HttpStatus").equals("2.00")) {			        	
-		        	// 파일 저장
-			        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);				        		        			        	
-		        }		        
-		        return result;
+	        result = fileRoute;
+	        
+	        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+	        	        
+		    return result;
 		        
 			} catch (IOException e) {
-				result.put("HttpStatus", "1.00");
+				result = "N";
 				return result;
 			}	 	
     }

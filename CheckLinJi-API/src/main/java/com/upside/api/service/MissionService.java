@@ -143,13 +143,14 @@ public class MissionService {
         
         Map<String, String> data = new HashMap<String, String>();
         
+        data.put("challengeName", challengeSubmissionDto.getChallengeName());
         data.put("date", date);
         data.put("email", challengeSubmissionDto.getEmail());
         
         try {
         	ArrayList<Map<String, Object>> missionCalendarOwn = memberMapper.missionCalendarOwn(data);
         	        	        	
-        	if (missionCalendarOwn.get(0) == null ) {
+        	if (missionCalendarOwn.size() == 0 ) {
         		log.info("본인 미션 달력 ------> " + "참여중이 아니거나 이력이 없습니다.");
         	    result.put("HttpStatus","1.00");		
        			result.put("Msg","참여중이 아니거나 이력이 없습니다.");
@@ -189,8 +190,12 @@ public class MissionService {
         String day = challengeSubmissionDto.getDay();
         String date = year+"-"+ month+"-"+day;                                
         
+        System.out.println(challengeSubmissionDto.getChallengeName());
+        System.out.println(date);
+        
         Map<String, String> data = new HashMap<String, String>();
         
+        data.put("challengeName", challengeSubmissionDto.getChallengeName());
         data.put("date", date);
         data.put("email", challengeSubmissionDto.getEmail());
         
@@ -216,27 +221,25 @@ public class MissionService {
 			    // JSON 문자열을 파싱하여 JSONObject 객체로 변환
 			    JSONObject jsonObject = (JSONObject) parser.parse(json);
 			    			    			    			    
-			    // FILE_ROUTE 키의 값 가져오기
-			    String fileRoute = (String) jsonObject.get("FILE_ROUTE");			    			   
+			    // SUBMISSION_IMAGE_ROUTE 컬럼 값 가져오기
+			    String fileRoute = (String) jsonObject.get("SUBMISSION_IMAGE_ROUTE");			    			   
 			    
 			    // Base64로 인코딩된 이미지 파일 문자열로 가져옴
 			    String file = fileService.myAuthImage(fileRoute); 
         	   
 			    if(file.equals("N")) {
 			    	log.info("본인 미션 상세보기 ------> " + "이미지를 표시할 수 없습니다.");
-			    	missionAuthInfo.remove("FILE_ROUTE"); // 파일 경로는 클라이언트 측에서 알 필요없으므로 삭제
+			    	missionAuthInfo.put("SUBMISSION_IMAGE_ROUTE", "이미지를 표시할 수 없습니다.");			    	
 			    	result.put("HttpStatus","2.00");		
 	      			result.put("Msg","이미지를 표시할 수 없습니다.");
-	      			result.put("missionAuthInfo",missionAuthInfo);
-	      			result.put("file","이미지를 표시할 수 없습니다.");
+	      			result.put("missionAuthInfo",missionAuthInfo);	      			
 	      			
 			    } else {
-	        	   	log.info("본인 미션 상세보기 ------> " + Constants.SUCCESS);
-	        	   	missionAuthInfo.remove("FILE_ROUTE"); // 파일 경로는 클라이언트 측에서 알 필요없으므로 삭제
+	        	   	log.info("본인 미션 상세보기 ------> " + Constants.SUCCESS);	        	   		        	   	
+	        	   	missionAuthInfo.put("SUBMISSION_IMAGE_ROUTE", file);
 	        	   	result.put("HttpStatus","2.00");		
 	      			result.put("Msg",Constants.SUCCESS);
-	      			result.put("missionAuthInfo",missionAuthInfo);
-	      			result.put("file",file);
+	      			result.put("missionAuthInfo",missionAuthInfo);	      			
 			    }
            }
 		} catch (DataAccessException e) {

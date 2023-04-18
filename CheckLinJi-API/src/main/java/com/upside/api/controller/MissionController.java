@@ -122,8 +122,8 @@ public class MissionController {
 		if (result.get("HttpStatus").equals("2.00")) { // 성공											
 			    message.setMsg((String) result.get("Msg"));
 				message.setStatusCode((String) result.get("HttpStatus"));
-				message.setUserList(result.get("missionAuthInfo"));
-			    message.setFile((String) result.get("file"));
+				message.setUserList(result.get("missionAuthInfo"));			    
+		return new ResponseEntity<>(message,HttpStatus.OK);
 			
 		} else {			
 			message.setMsg((String) result.get("Msg"));
