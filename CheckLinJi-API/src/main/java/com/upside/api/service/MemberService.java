@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -34,6 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class MemberService {
 	
+	 @Value("${file.upload-dir}")
+	 private String uploadDir;
 	
 	private final MemberRepository memberRepository;		
 	private final JwtTokenProvider jwtTokenProvider;		
@@ -41,6 +44,7 @@ public class MemberService {
 	private final EntityManager entityManager;
 	private final MemberMapper memberMapper ;
 	private final RedisTemplate<String, String> redisTemplate;
+	private final FileService fileService ;
 	
 	
 	/**
@@ -57,11 +61,14 @@ public class MemberService {
 	public Map<String, Object> selectMember(String email) {	
 		Map<String, Object> result = new HashMap<String, Object>();
 		
-		
+		// Base64로 인코딩된 이미지 파일 문자열로 가져옴
+	     
 		Optional<MemberEntity> data = memberRepository.findById(email);
 		
 		 if(data.isPresent()) {		
-			 data.get().setPassword("");
+			 String file = fileService.myAuthImage(data.get().getProfile());
+			 data.get().setPassword(""); // 조회시 패스워드는 공백 처리
+			 data.get().setProfile(file); // 프로필은 base64로 인코딩해서 넘겨줌
 			 log.info("회원목록 조회 ------> " + Constants.SUCCESS);
 			 result.put("HttpStatus","2.00");
 			 result.put("Msg",Constants.SUCCESS);
@@ -91,10 +98,7 @@ public class MemberService {
 			result.put("HttpStatus","1.01");
 			result.put("Msg",Constants.NOT_EXIST_PARAMETER);
 			return result ; // 요청은 잘 만들어졌지만, 문법 오류로 인하여 따를 수 없습니다.
-		} 
-		
-		
-//		 boolean idSame = memberRepository.findById(memberDto.getEmail()).isPresent();
+		} 						 
 		
 		 Optional<MemberEntity> idSame = memberRepository.findById(memberDto.getEmail());
 		 
@@ -117,7 +121,20 @@ public class MemberService {
 			 
 			 return result ;
 		}
+		
+		String profileName = "";
 		 
+		if(memberDto.getSex().equals("M")) {			
+			
+			profileName = "M-" + String.valueOf((int)(Math.random() * 5) + 1) + ".png";
+		}else if (memberDto.getSex().equals("W")) {
+			
+			profileName = "W-" + String.valueOf((int)(Math.random() * 5) + 1) + ".png";
+		} else {
+			
+			profileName = "W-" + String.valueOf((int)(Math.random() * 5) + 1) + ".png";
+		}
+		
 		SimpleDateFormat today = new SimpleDateFormat("yyyy-MM-dd hh:mm");        		
 		
 		MemberEntity memberEntity = MemberEntity.builder()
@@ -130,8 +147,9 @@ public class MemberService {
 				.loginDate(today.format(new Date()))
 				.joinDate(today.format(new Date()))
 				.authority("user")
-				.build();
-						
+				.profile(uploadDir + "/" + "profile" + "/" + profileName) // 문자열에서 백슬래시()는 이스케이프 문자(escape character)로 사용되기 때문에 사용할려면 \\ 두개로 해야 \로 인식
+				.build();						        
+		
 		 memberRepository.save(memberEntity);
 		 
 		 boolean  exsistUser = memberRepository.findById(memberDto.getEmail()).isPresent();

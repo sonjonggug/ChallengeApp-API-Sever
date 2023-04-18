@@ -2,15 +2,8 @@ package com.upside.api.service;
 
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,9 +13,9 @@ import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.upside.api.dto.SayingDto;
 import com.upside.api.entity.SayingEntity;
 import com.upside.api.repository.WiseSayingRepository;
+import com.upside.api.util.APIConnect;
 import com.upside.api.util.Constants;
 
 import lombok.RequiredArgsConstructor;
@@ -40,7 +33,15 @@ public class ExternalAPIService {
 	@Value("${chatGpt.api.key}")
 	private String chatGptKey;
 	
+	@Value("${naver.client.id}")
+	private String clientId; //  클라이언트 아이디
+	
+	@Value("${naver.client.secret}")
+	private String clientSecret; // //  클라이언트 시크릿
+	
 	private final WiseSayingRepository wiseSayingRepository;
+	
+//	private final ApiComponent apiCoponent;
 	
 	
 	 /**
@@ -72,6 +73,40 @@ public class ExternalAPIService {
 	    }	
 	 
 	 /**
+	  * 오타 검수 API 
+	  * @return
+	  */
+	 public  Map<String,String> spellCheckAPI (String content) {
+		 
+		 Map<String,String> result = new HashMap<String, String>();
+		 
+//		 String clientId = "YOUR_CLIENT_ID"; //애플리케이션 클라이언트 아이디
+//		 String clientSecret = "YOUR_CLIENT_SECRET"; //애플리케이션 클라이언트 시크릿
+		 		 
+		        try {
+		        	content = URLEncoder.encode("그린팩토리", "UTF-8");
+		        } catch (UnsupportedEncodingException e) {
+		            throw new RuntimeException("검색어 인코딩 실패",e);
+		        }
+
+
+	        String apiURL = "https://openapi.naver.com/v1/search/blog?query=" + content;    // JSON 결과	        
+
+	        Map<String, String> requestHeaders = new HashMap<>();
+	        requestHeaders.put("X-Naver-Client-Id", clientId);
+	        requestHeaders.put("X-Naver-Client-Secret", clientSecret);
+	        
+	        String responseBody = APIConnect.get(apiURL,requestHeaders);
+
+	        
+	        
+	        log.info("오타 검수 ------> " + Constants.SUCCESS);
+			result.put("HttpStatus","2.00");
+	        result.put("Msg",responseBody);
+	        return result;
+	    }	
+	 
+	 /**
 	  * ChatGpt API
 	  * @param request
 	  * @return
@@ -94,64 +129,64 @@ public class ExternalAPIService {
 	          jsonData.put("max_tokens", 150); // 응답의 컨텍스트 길이
 	          jsonData.put("temperature", 0); // 얼마나 창의적인 답을 작성하도록 할지 지정하는 값. 클수록 창의적
 	          	              
-	          String responseBody = post(apiUrl, requestHeaders, jsonData);
+	          String responseBody = APIConnect.post(apiUrl, requestHeaders, jsonData);
 	                   
 	          return responseBody;  
 	      }
 
-	      private static String post(String apiUrl, Map<String, String> requestHeaders, JSONObject jsonData) {
-	          HttpURLConnection con = connect(apiUrl);
-
-	          try {
-	              con.setRequestMethod("POST"); // POST 형식으로
-	              for(Map.Entry<String, String> header :requestHeaders.entrySet()) {
-	                  con.setRequestProperty(header.getKey(), header.getValue()); // Request 속성 값 설정하기 원래는 con.setRequestProperty("Content-type", "application/json"); 으로 설정하는데 for문으로 간단하게 처리
-	              }
-	                    
-	              con.setDoOutput(true); // 받아온 Json 데이터를 출력 가능한 상태(True)
-	              try (OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream(), "UTF-8")) {            	 
-	            	  wr.write(jsonData.toString());  // JSON형식을 String으로 다시 변환
-	                  wr.flush();
-	              }
-
-	              int responseCode = con.getResponseCode();
-	              if (responseCode == HttpURLConnection.HTTP_OK) { // 정상 응답
-	                  return readBody(con.getInputStream());
-	              } else {  // 에러 응답
-	                  return readBody(con.getErrorStream());
-	              }
-	          } catch (IOException e) {
-	              throw new RuntimeException("API 요청과 응답 실패", e);
-	          } finally {
-	              con.disconnect(); // Connection을 재활용할 필요가 없는 프로세스일 경우
-	          }
-	      }
-
-	      private static HttpURLConnection connect(String apiUrl) {
-	          try {
-	              URL url = new URL(apiUrl);
-	              return (HttpURLConnection) url.openConnection();
-	          } catch (MalformedURLException e) {
-	              throw new RuntimeException("API URL이 잘못되었습니다. : " + apiUrl, e);
-	          } catch (IOException e) {
-	              throw new RuntimeException("연결이 실패했습니다. : " + apiUrl, e);
-	          }
-	      }
-
-	      private static String readBody(InputStream body) {
-	          InputStreamReader streamReader = new InputStreamReader(body, StandardCharsets.UTF_8);
-
-	          try (BufferedReader lineReader = new BufferedReader(streamReader)) {
-	              StringBuilder responseBody = new StringBuilder();
-
-	              String line;
-	              while ((line = lineReader.readLine()) != null) {
-	                  responseBody.append(line);
-	              }
-	              System.out.println(responseBody.toString());
-	              return responseBody.toString();
-	          } catch (IOException e) {
-	              throw new RuntimeException("API 응답을 읽는데 실패했습니다.", e);
-	          }
-	      }
+//	      private static String post(String apiUrl, Map<String, String> requestHeaders, JSONObject jsonData) {
+//	          HttpURLConnection con = connect(apiUrl);
+//
+//	          try {
+//	              con.setRequestMethod("POST"); // POST 형식으로
+//	              for(Map.Entry<String, String> header :requestHeaders.entrySet()) {
+//	                  con.setRequestProperty(header.getKey(), header.getValue()); // Request 속성 값 설정하기 원래는 con.setRequestProperty("Content-type", "application/json"); 으로 설정하는데 for문으로 간단하게 처리
+//	              }
+//	                    
+//	              con.setDoOutput(true); // 받아온 Json 데이터를 출력 가능한 상태(True)
+//	              try (OutputStreamWriter wr = new OutputStreamWriter(con.getOutputStream(), "UTF-8")) {            	 
+//	            	  wr.write(jsonData.toString());  // JSON형식을 String으로 다시 변환
+//	                  wr.flush();
+//	              }
+//
+//	              int responseCode = con.getResponseCode();
+//	              if (responseCode == HttpURLConnection.HTTP_OK) { // 정상 응답
+//	                  return readBody(con.getInputStream());
+//	              } else {  // 에러 응답
+//	                  return readBody(con.getErrorStream());
+//	              }
+//	          } catch (IOException e) {
+//	              throw new RuntimeException("API 요청과 응답 실패", e);
+//	          } finally {
+//	              con.disconnect(); // Connection을 재활용할 필요가 없는 프로세스일 경우
+//	          }
+//	      }
+//
+//	      private static HttpURLConnection connect(String apiUrl) {
+//	          try {
+//	              URL url = new URL(apiUrl);
+//	              return (HttpURLConnection) url.openConnection();
+//	          } catch (MalformedURLException e) {
+//	              throw new RuntimeException("API URL이 잘못되었습니다. : " + apiUrl, e);
+//	          } catch (IOException e) {
+//	              throw new RuntimeException("연결이 실패했습니다. : " + apiUrl, e);
+//	          }
+//	      }
+//
+//	      private static String readBody(InputStream body) {
+//	          InputStreamReader streamReader = new InputStreamReader(body, StandardCharsets.UTF_8);
+//
+//	          try (BufferedReader lineReader = new BufferedReader(streamReader)) {
+//	              StringBuilder responseBody = new StringBuilder();
+//
+//	              String line;
+//	              while ((line = lineReader.readLine()) != null) {
+//	                  responseBody.append(line);
+//	              }
+//	              System.out.println(responseBody.toString());
+//	              return responseBody.toString();
+//	          } catch (IOException e) {
+//	              throw new RuntimeException("API 응답을 읽는데 실패했습니다.", e);
+//	          }
+//	      }
 	}

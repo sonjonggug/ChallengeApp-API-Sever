@@ -157,7 +157,7 @@ public class FileService {
 	 */
 	public String myAuthImage(String fileRoute) {
 		
-		log.info("본인 인증 이미지  ------> " + "Start");
+		log.info("본인 인증 이미지  ------> " + fileRoute);
 		
 		
 		String encoded="N";
@@ -175,6 +175,7 @@ public class FileService {
 		} catch (IOException e) {			
 			encoded = "N";
 			log.info("본인 인증 이미지  ------> " + "실패");
+			e.printStackTrace();
 		}
 		 return encoded ;				 	 	    			    		   
 	}
