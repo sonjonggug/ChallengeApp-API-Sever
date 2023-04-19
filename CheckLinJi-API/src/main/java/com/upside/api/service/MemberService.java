@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.upside.api.config.JwtTokenProvider;
 import com.upside.api.dto.MemberDto;
@@ -458,6 +459,66 @@ public class MemberService {
 	    	result.put("UserEmail", member.getEmail());
 
     	}
+    	return result;
+   }
+    
+    
+   /**
+    * 프로필 업데이트
+    * @param email
+    * @return
+    */
+    @Transactional // 트랜잭션 안에서 entity를 조회해야 영속성 상태로 조회가 되고 값을 변경해면 변경 감지(dirty checking)가 일어난다.
+    public Map<String, String> updateProfile (MultipartFile file , String email) {
+    	
+    	Map<String, String> result = new HashMap<String, String>();
+    	log.info("프로필 사진 업데이트 ------> Start ");
+    	
+    	try {					    	
+    	Optional<MemberEntity> user = memberRepository.findById(email);       
+    	if(!user.isPresent()) { 
+    		log.info("프로필 사진 업데이트 실패 ------> 존재하지 않는 이메일입니다.");
+    		result.put("HttpStatus", "1.00");
+    		result.put("Msg", Constants.FAIL);
+    		return result;
+    	}else {
+    		
+    		// 파일 삭제
+    		boolean deleteYn = fileService.deleteFile(user.get().getProfile());
+    		
+    		// 삭제 실패 시
+    		if(!deleteYn) {
+    			log.info("프로필 사진 삭제 실패 ------> " + user.get().getProfile());
+	    		result.put("HttpStatus", "1.00");
+	    		result.put("Msg", "프로필 사진 삭제에 실패하였습니다.");
+	    		return result;
+    		}
+    		
+    		// 파일 업로드 
+    	 	String submissionImageRoute = fileService.uploadProfile(file, email);
+    		
+    	 	if(submissionImageRoute.equals("N")) {
+    	 		log.info("프로필 사진 업데이트 실패 ------> 파일 에러");
+	    		result.put("HttpStatus", "1.00");
+	    		result.put("Msg", "프로필 사진 업데이트에 실패하였습니다.");
+	    		return result;
+    	 	}
+    	 	    	 	    	        	 	
+    		MemberEntity member = user.get();
+    		
+    		member.setProfile(submissionImageRoute);    		    
+			
+	    	result.put("HttpStatus", "2.00");
+			result.put("Msg", Constants.SUCCESS);
+			log.info("프로필 사진 업데이트 성공 ------>" + email);	
+
+		}
+			} catch (Exception e) {
+				log.info("프로필 사진 업데이트 실패 ------> Exception");
+	    		result.put("HttpStatus", "1.00");
+	    		result.put("Msg", Constants.FAIL);
+	    		return result;
+			}
     	return result;
    }
 }

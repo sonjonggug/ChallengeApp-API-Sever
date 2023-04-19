@@ -2,6 +2,7 @@ package com.upside.api.service;
 
 
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,7 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -88,6 +88,52 @@ public class FileService {
 				return result;
 			}	 	
     }
+	
+	/**
+	 * 프로필 사진 업로드
+	 * @param file
+	 * @param email
+	 * @return
+	 * @throws IOException
+	 */
+	public String uploadProfile (@RequestParam("file") MultipartFile file , String email) throws IOException {
+		
+		String result = "N";
+	  	LocalDate now = LocalDate.now();  
+	  	
+	 	try {
+	 		// 업로드된 파일 이름 가져오기
+	        String fileName = email+"_"+now+"_"+StringUtils.cleanPath(file.getOriginalFilename());
+	        
+	        String uploaProfiledDir = uploadDir + "/" + "profile" + "/" + fileName ;
+	        
+	        // 파일 저장 경로 생성
+	        Path uploadPath = Paths.get(uploaProfiledDir);
+	        	        
+	        // 파일 저장 경로가 없을 경우 생성
+	        if (!Files.exists(uploadPath)) {
+	            Files.createDirectories(uploadPath);
+	        }
+
+	        // 파일 저장 경로와 파일 이름을 조합한 경로 생성
+	        Path filePath = uploadPath.resolve(fileName).normalize();		        		        
+	        
+	        // 문자열에서 백슬래시()는 이스케이프 문자(escape character)로 사용되기 때문에 사용할려면 \\ 두개로 해야 \로 인식
+	        String fileRoute = uploadPath.toString() + "/" + fileName ; 
+
+	        
+	        result = fileRoute;
+	        
+	        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+	        	        
+		    return result;
+		        
+			} catch (IOException e) {
+				result = "N";
+				return result;
+			}	 	
+    }
+	
 	
 	/**
 	 * 파일 업로드 시 이름 및 경로 DB 저장 
@@ -174,6 +220,43 @@ public class FileService {
 			e.printStackTrace();
 		}
 		 return encoded ;				 	 	    			    		   
+	}
+	
+	/**
+	 * 파일 삭제 ( 프로필 , 인증사진 등 )
+	 * @param fileUploadDto
+	 * @return
+	 */
+	public boolean deleteFile (String fileRoute) {
+		
+		log.info("파일 삭제 ------> " + fileRoute);
+		
+		
+		boolean result = false ;
+		try {		        			
+		
+			// 삭제할 파일의 경로나 식별자
+			String filePath = fileRoute ;
+			// 파일 객체 생성
+			File file = new File(filePath);
+			// 파일이 존재하는 경우 삭제
+			if (file.exists()) {
+			    result = file.delete();
+			    if (result) {
+			    	log.info("파일 삭제 ------> " + Constants.SUCCESS);
+			    } else {
+			    	log.info("파일 삭제 ------> " + Constants.FAIL);
+			    }
+			} else {
+					log.info("파일 삭제 ------> " + "삭제할 파일이 존재하지 않습니다.");
+			}	
+			                        		
+		} catch (Exception e) {			
+			result = false ;
+			log.info("파일 삭제 ------> " + Constants.FAIL);
+			e.printStackTrace();
+		}
+		 return result ;				 	 	    			    		   
 	}
 	
 	}

@@ -17,9 +17,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.upside.api.config.JwtTokenProvider;
+import com.upside.api.dto.ChallengeSubmissionDto;
 import com.upside.api.dto.MemberDto;
 import com.upside.api.dto.MessageDto;
 import com.upside.api.entity.MemberEntity;
@@ -188,5 +191,25 @@ public class MemberController {
 			 return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST); 
 		 }
 	}
+	
+	
+	 // 프로필 업데이트
+		@PostMapping("/update/profile")
+		public ResponseEntity<MessageDto> updateProfile (@RequestParam("file") MultipartFile file ,  MemberDto memberDto) {							 
+
+			 Map<String, String> result = memberService.updateProfile(file,memberDto.getEmail());
+			 
+			 MessageDto message = new MessageDto();
+			 
+			 if(result.get("HttpStatus").equals("2.00")) {			 		 			 				 
+				 message.setMsg(result.get("Msg"));				 				 
+				 message.setStatusCode(result.get("HttpStatus"));
+				 return new ResponseEntity<>(message, HttpStatus.OK);
+			 } else {			 
+				 message.setMsg(result.get("Msg"));
+				 message.setStatusCode(result.get("HttpStatus"));
+				 return new ResponseEntity<>(message,HttpStatus.BAD_REQUEST); 
+			 }
+		}
 	
   }
