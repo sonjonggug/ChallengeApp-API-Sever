@@ -483,16 +483,21 @@ public class MemberService {
     		return result;
     	}else {
     		
-    		// 파일 삭제
-    		boolean deleteYn = fileService.deleteFile(user.get().getProfile());
+    		// 기본 프로필 ( M- , or W- 일 경우 삭제 X )
+    		if(!user.get().getProfile().contains("M-") && !user.get().getProfile().contains("W-")) {
     		
-    		// 삭제 실패 시
-    		if(!deleteYn) {
-    			log.info("프로필 사진 삭제 실패 ------> " + user.get().getProfile());
-	    		result.put("HttpStatus", "1.00");
-	    		result.put("Msg", "프로필 사진 삭제에 실패하였습니다.");
-	    		return result;
-    		}
+    			// 파일 삭제
+        		boolean deleteYn = fileService.deleteFile(user.get().getProfile());
+        		
+        		// 삭제 실패 시
+        		if(!deleteYn) {
+        			log.info("프로필 사진 삭제 실패 ------> " + user.get().getProfile());
+    	    		result.put("HttpStatus", "1.00");
+    	    		result.put("Msg", "프로필 사진 삭제에 실패하였습니다.");
+    	    		return result;
+        		}
+    			
+    		}    		    		    		
     		
     		// 파일 업로드 
     	 	String submissionImageRoute = fileService.uploadProfile(file, email);

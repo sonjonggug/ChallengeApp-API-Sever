@@ -44,6 +44,9 @@ public class FileService {
 	
 	 @Value("${file.upload-dir}")
 	 private String uploadDir;
+	 
+	 @Value("${profile.upload-dir}")
+	 private String profileDir;
 	
 	
 	/**
@@ -101,34 +104,32 @@ public class FileService {
 		String result = "N";
 	  	LocalDate now = LocalDate.now();  
 	  	
-	 	try {
-	 		// 업로드된 파일 이름 가져오기
-	        String fileName = email+"_"+now+"_"+StringUtils.cleanPath(file.getOriginalFilename());
-	        
-	        String uploaProfiledDir = uploadDir + "/" + "profile" + "/" + fileName ;
-	        
-	        // 파일 저장 경로 생성
-	        Path uploadPath = Paths.get(uploaProfiledDir);
-	        	        
-	        // 파일 저장 경로가 없을 경우 생성
-	        if (!Files.exists(uploadPath)) {
-	            Files.createDirectories(uploadPath);
+	 	try {	 			 		
+	 		
+	 		// 파일이름 : 현재날짜 + 이메일 + profile + 사진 이름
+	        String fileName = now+"_"+email+"_"+"profile_"+StringUtils.cleanPath(file.getOriginalFilename());	        	        	        	       
+	                
+	        File uploadProfileDir = new File(profileDir);
+	        if (!uploadProfileDir.exists()) {
+	        	uploadProfileDir.mkdirs();
 	        }
-
-	        // 파일 저장 경로와 파일 이름을 조합한 경로 생성
-	        Path filePath = uploadPath.resolve(fileName).normalize();		        		        
 	        
-	        // 문자열에서 백슬래시()는 이스케이프 문자(escape character)로 사용되기 때문에 사용할려면 \\ 두개로 해야 \로 인식
-	        String fileRoute = uploadPath.toString() + "/" + fileName ; 
-
+	        // 파일 경로 설정 
+	        String uploadedFilePath = uploadProfileDir + "/" + fileName;	       	        
+	        	        
+	        // 파일 저장 경로 생성
+	        Path uploadPath = Paths.get(uploadedFilePath);
 	        
-	        result = fileRoute;
+	        // 반환 값 저장경로 스트링으로 변환 
+	        result = uploadPath.toString();
 	        
-	        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+	        // 저장경로에 파일 생성
+	        Files.copy(file.getInputStream(), uploadPath, StandardCopyOption.REPLACE_EXISTING);
 	        	        
 		    return result;
 		        
 			} catch (IOException e) {
+				e.printStackTrace();
 				result = "N";
 				return result;
 			}	 	
@@ -248,6 +249,7 @@ public class FileService {
 			    	log.info("파일 삭제 ------> " + Constants.FAIL);
 			    }
 			} else {
+					result = true ;
 					log.info("파일 삭제 ------> " + "삭제할 파일이 존재하지 않습니다.");
 			}	
 			                        		
